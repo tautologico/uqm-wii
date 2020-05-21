@@ -1,0 +1,16 @@
+.DS_Store
+*.app
+.*.swp
+/.gdbinit
+/.gdb_history
+/build.vars
+/config.state
+/config_unix.h
+/obj
+/uqm-debug
+/uqm-wrapper
+/uqm
+/*.exe
+/*.dll
+/*.ilk
+/*.dbg
