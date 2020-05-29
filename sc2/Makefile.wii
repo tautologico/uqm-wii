@@ -1,0 +1,106 @@
+# Make file for the uqm build system. Invoked from build/unix/build_functions
+# By Serge van den Boom
+
+.DELETE_ON_ERROR:
+
+SOURCES := $(shell cat "$(DEPEND_FILE)")
+-include $(SOURCES:=.d)
+
+ifeq ($(MAKE_VERBOSE),1)
+define act
+	$(call $(1))
+endef
+else
+define act
+	@echo "  $(2)  $(3)"
+	@$(call $(1))
+endef
+endif
+
+ifeq ($(strip $(DEVKITPPC)),)
+$(error "You need devkitppc and the DEVKITPPC environment variable pointing to it")
+endif
+
+include $(DEVKITPPC)/wii_rules
+
+CC = powerpc-eabi-gcc
+CFLAGS = -O2
+CFLAGS += $(MACHDEP) -I$(DEVKITPRO)/portlibs/wii/include/SDL
+CFLAGS += -I$(DEVKITPRO)/porlibs/wii/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT
+CFLAGS += -g -O0 -W -Wall -DDEBUG -DGFXMODULE_SDL -DUSE_INTERNAL_MIKMOD -DUSE_INTERNAL_LUA 
+CFLAGS += -DHAVE_JOYSTICK -DHAVE_ZIP=1 -DUSE_PLATFORM_ACCEL -DTHREADLIB_SDL -I"."
+CFLAGS += -Isrc -I$(DEVKITPRO)/libogc/include 
+
+CXX = powerpc-eabi-g++
+CXXFLAGS = $(CFLAGS)
+CXXFLAGS += -fno-rtti -fno-exceptions -nostdinc++
+
+LD = $(CC) -Wl,-s $(MACHDEP)
+
+# TODO remove?
+LIBS += -L$(DEVKITPRO)/portlibs/ppc/lib -L$(DEVKITPRO)/libogc/lib/wii \
+        -L$(DEVKITPRO)/portlibs/wii/lib -lSDL \
+        -lfat -lwiiuse -lwiikeyboard -lbte -logc -lm -lstdc++
+
+LDFLAGS  = -L$(DEVKITPRO)/portlibs/ppc/lib -L$(DEVKITPRO)/libogc/lib/wii 
+LDFLAGS += -L$(DEVKITPRO)/portlibs/wii/lib -lfat -lwiiuse -lwiikeyboard -lbte -logc 
+LDFLAGS += -L/usr/lib/x86_64-linux-gnu -lSDL -lSDL_image -O0 -lvorbisfile -lz
+
+TARGET_FILE = uqm-wii
+
+
+default: $(TARGET_FILE)
+
+$(OBJDIR)%.c.d: $(BUILD_ROOT)%.c
+	@DIR=$(dir $@); \
+	if [ ! -d $$DIR ]; then \
+		mkdir -p "$$DIR"; \
+	fi
+	$(call act,act_mkdep_c,MKDEP  ,$@)
+
+$(OBJDIR)%.cpp.d: $(BUILD_ROOT)%.cpp
+	@DIR=$(dir $@); \
+	if [ ! -d $$DIR ]; then \
+		mkdir -p "$$DIR"; \
+	fi
+	$(call act,act_mkdep_cxx,MKDEP  ,$@)
+
+$(OBJDIR)%.m.d: $(BUILD_ROOT)%.m
+	@DIR=$(dir $@); \
+	if [ ! -d $$DIR ]; then \
+		mkdir -p "$$DIR"; \
+	fi
+	$(call act,act_mkdep_m,MKDEP  ,$@)
+
+%.rc.o: %.rc
+	@DIR=$(dir $@); \
+	if [ ! -d $$DIR ]; then \
+		mkdir -p "$$DIR"; \
+	fi
+	$(call act,act_windres,WINDRES,$@)
+
+%.c.o:
+	@DIR=$(dir $@); \
+	if [ ! -d $$DIR ]; then \
+		mkdir -p "$$DIR"; \
+	fi
+	$(call act,act_cc,CC     ,$@)
+
+%.cpp.o:
+	@DIR=$(dir $@); \
+	if [ ! -d $$DIR ]; then \
+		mkdir -p "$$DIR"; \
+	fi
+	$(call act,act_cxx,CXX    ,$@)
+
+%.m.o:
+	@DIR=$(dir $@); \
+	if [ ! -d $$DIR ]; then \
+		mkdir -p "$$DIR"; \
+	fi
+	$(call act,act_objcc,OBJCC  ,$@)
+
+$(TARGET_FILE): $(SOURCES:=.o)
+	$(call act,act_link,LINK   ,$@)
+
+
