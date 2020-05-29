@@ -26,7 +26,11 @@ else
 ifeq ($(HOST_SYSTEM),GCCE)
 	include build/unix/make/buildtools-gcce
 else
+ifeq ($(HOST_SYSTEM),WII)
+	include build/unix/make/buildtools-wii
+else
 	include build/unix/make/buildtools-generic
+endif
 endif
 endif
 endif

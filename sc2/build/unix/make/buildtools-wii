@@ -1,0 +1,8 @@
+
+# Wii version
+
+ifeq ($(strip $(DEVKITPPC)),)
+$(error "You need devkitppc and the DEVKITPPC environment variable pointing to it")
+endif
+
+include $(DEVKITPPC)/wii_rules
