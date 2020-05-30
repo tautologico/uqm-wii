@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<app version="1">
+  <name>The Ur-Quan Masters</name>
+  <coder>tautologico</coder>
+  <version>0.7-wii-0.1</version>
+  <release_date>30/05/2020</release_date>
+  <short_description>The Ur-Quan Masters (open source version of Star Control 2)</short_description> 
+  <long_description>This is a port of The Ur-Quan Masters (open source version of Star Control 2) to the Wii. Frungy!</long_description> 
+  <ahb_access/>
+</app>
