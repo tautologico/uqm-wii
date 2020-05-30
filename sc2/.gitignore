@@ -5,11 +5,11 @@
 /.gdb_history
 /build.vars
 /config.state
-/config_unix.h
 /obj
 /uqm-debug
 /uqm-wrapper
 /uqm
+/uqm-wii
 /*.exe
 /*.dll
 /*.ilk
