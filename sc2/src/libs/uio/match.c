@@ -33,6 +33,10 @@
 #	include <fnmatch.h>
 #endif
 
+// TODO: temporary fix
+#ifdef GEKKO
+#undef HAVE_REGEX
+#endif
 
 static inline match_MatchContext *match_allocMatchContext(void);
 static inline void match_freeMatchContext(match_MatchContext *context);

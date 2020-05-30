@@ -235,6 +235,9 @@ err:
 	return -1;
 }
 
+
+static const char *gekko_home = ".";
+
 // Get the user's home dir
 // returns a pointer to a static buffer from either getenv() or getpwuid().
 const char *
@@ -242,6 +245,9 @@ getHomeDir (void)
 {
 #ifdef WIN32
 	return getenv ("HOME");
+#else
+#ifdef GEKKO
+	return gekko_home;
 #else
 	const char *home;
 	struct passwd *pw;
@@ -256,6 +262,7 @@ getHomeDir (void)
 	// NB: pw points to a static buffer.
 
 	return pw->pw_dir;
+#endif
 #endif
 }
 
