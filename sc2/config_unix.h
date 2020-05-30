@@ -1,29 +1,27 @@
-/* This file contains some compile-time configuration options for *nix
- * systems.
- * config_unix.h is generated from config_unix.h.in by build.sh
- * When building on MS Windows using build.sh (MinGW, Cygwin),
- * config_win.h is generated from src/config_win.h.in.
- * When using MSVC on MS Windows, you'll have to edit src/config_vc6.h
- * manually if you want anything else than the defaults.
+/*
+ * 
+ * This file contains some compile-time configuration options for 
+ * cross-compiling from a unix system to the Wii
+ *
  */
 
 #ifndef CONFIG_UNIX_H_
 #define CONFIG_UNIX_H_
 
 /* Directory where the UQM game data is located */
-#define CONTENTDIR "/usr/local/games/share/uqm/content"
+#define CONTENTDIR "sd:/apps/uqm/content"
 
 /* Directory where game data will be stored */
-#define USERDIR "~/.uqm/"
+#define USERDIR "sd:/apps/uqm/user"
 
 /* Directory where config files will be stored */
 #define CONFIGDIR USERDIR
 
 /* Directory where supermelee teams will be stored */
-#define MELEEDIR "${UQM_CONFIG_DIR}/teams/"
+#define MELEEDIR "sd:/apps/uqm/teams/"
 
 /* Directory where save games will be stored */
-#define SAVEDIR "${UQM_CONFIG_DIR}/save/"
+#define SAVEDIR "sd:/apps/uqm/save/"
 
 /* Defined if words are stored with the most significant byte first */
 #define WORDS_BIGENDIAN

@@ -135,4 +135,7 @@ $(OBJDIR)%.m.d: $(BUILD_ROOT)%.m
 $(TARGET_FILE): $(SOURCES:=.o)
 	$(call act,act_link,LINK   ,$@)
 
-
+clean:
+	rm -R -f obj
+	rm -R -f uqm-wii
+	

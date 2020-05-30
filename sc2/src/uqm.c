@@ -57,6 +57,10 @@
 #include "uqm/setup.h"
 #include "uqm/starcon.h"
 
+// wii file system
+#include <sdcard/wiisd_io.h>
+#include <fat.h>
+
 
 #if defined (GFXMODULE_SDL)
 #	include SDL_INCLUDE(SDL.h)
@@ -226,6 +230,16 @@ static const char *choiceOptString (const struct int_option *option);
 static const char *boolOptString (const struct bool_option *option);
 static const char *boolNotOptString (const struct bool_option *option);
 
+void init_wii_file(void)
+{
+	if (!fatInitDefault()) {
+		fprintf(stderr, "Could not initialize file system!\n");
+		exit(EXIT_FAILURE);
+	}
+
+	fatMountSimple("sd", &__io_wiisd);
+}
+
 int
 main (int argc, char *argv[])
 {
@@ -271,6 +285,8 @@ main (int argc, char *argv[])
 	int gfxFlags;
 	int i;
 
+	init_wii_file();
+	
 	// NOTE: we cannot use the logging facility yet because we may have to
 	//   log to a file, and we'll only get the log file name after parsing
 	//   the options.
