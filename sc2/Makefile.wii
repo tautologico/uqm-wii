@@ -3,7 +3,7 @@
 
 .DELETE_ON_ERROR:
 
-MAKE_VERBOSE=0
+MAKE_VERBOSE=1
 DEPEND_FILE = make.depend
 SOURCES := $(shell cat "$(DEPEND_FILE)")
 -include $(SOURCES:=.d)
@@ -26,9 +26,9 @@ endif
 include $(DEVKITPPC)/wii_rules
 
 CC = powerpc-eabi-gcc
-CFLAGS = -O2
-CFLAGS += $(MACHDEP) -I$(DEVKITPRO)/portlibs/wii/include/SDL
-CFLAGS += -I$(DEVKITPRO)/porlibs/wii/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT
+CFLAGS = -O0 $(MACHDEP)
+CFLAGS += -I$(DEVKITPRO)/portlibs/wii/include/SDL -I$(DEVKITPRO)/portlibs/ppc/include
+CFLAGS += -I$(DEVKITPRO)/porlibs/wii/include -D_GNU_SOURCE=1 -D_REENTRANT
 CFLAGS += -g -O0 -W -Wall -DDEBUG -DGFXMODULE_SDL -DUSE_INTERNAL_MIKMOD -DUSE_INTERNAL_LUA 
 CFLAGS += -DHAVE_JOYSTICK -DHAVE_ZIP=1 -DUSE_PLATFORM_ACCEL -DTHREADLIB_SDL -I"."
 CFLAGS += -Isrc -I$(DEVKITPRO)/libogc/include 
@@ -45,23 +45,40 @@ LIBS += -L$(DEVKITPRO)/portlibs/ppc/lib -L$(DEVKITPRO)/libogc/lib/wii \
         -lfat -lwiiuse -lwiikeyboard -lbte -logc -lm -lstdc++
 
 LDFLAGS  = -L$(DEVKITPRO)/portlibs/ppc/lib -L$(DEVKITPRO)/libogc/lib/wii 
-LDFLAGS += -L$(DEVKITPRO)/portlibs/wii/lib -lfat -lwiiuse -lwiikeyboard -lbte -logc 
-LDFLAGS += -L/usr/lib/x86_64-linux-gnu -lSDL -lSDL_image -O0 -lvorbisfile -lz
+LDFLAGS += -L$(DEVKITPRO)/portlibs/wii/lib 
+LDFLAGS += -L/usr/lib/x86_64-linux-gnu -lSDL_image -ljpeg -lpng -lz -lSDL -O0 -lvorbisidec -logg
+LDFLAGS += -lfat -lwiiuse -lwiikeyboard -lbte -logc -lm 
+
+MKDEP_C = powerpc-eabi-gcc -MM
+MKDEP_CXX = $(MKDEP_C)
 
 define act_cc
-	$(CC) -o "$@" $(CFLAGS) "$<"
+	$(CC) -c -o "$@" $(CFLAGS) "$<"
 endef
 
 define act_link
 	$(LD) -o "$@" $^ $(LDFLAGS)
 endef
 
+define act_mkdep_c
+	$(MKDEP_C) $(CFLAGS) "$<" -MT "$(@D)/$(<F).o" -MF "$@"
+endef
+
+define act_mkdep_cxx
+	$(MKDEP_CXX) $(CXXFLAGS) "$<" -MT "$(@D)/$(<F).o" -MF "$@"
+endef
 
 
 TARGET_FILE = uqm-wii
 uqm_OBJS = obj/
-OBJDIR = obj/
+OBJDIR = obj/debug/
 SED = sed
+
+printsrc:
+	$(info $(SOURCES))
+
+printobj:
+	$(info $(SOURCES:=.o))
 
 default: $(TARGET_FILE)
 	
