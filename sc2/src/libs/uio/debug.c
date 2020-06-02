@@ -761,7 +761,7 @@ debugCmdMkDir(DebugContext *debugContext, int argc, char *argv[]) {
 	
 	retVal = uio_mkdir(debugContext->cwd, argv[1], 0777);
 	if (retVal == -1) {
-		fprintf(debugContext->err, "Could not create directory: %s\n",
+		fprintf(debugContext->err, "debugCmdMkDir: Could not create directory: %s\n",
 				strerror(errno));
 		return 1;
 	}

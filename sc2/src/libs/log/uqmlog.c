@@ -41,7 +41,7 @@ static log_Entry msgNoThread;
 static char msgBuf[16384];
 
 static int maxLevel = log_Error;
-static int maxStreamLevel = log_Debug;
+static int maxStreamLevel = log_All;
 static int maxDisp = 10;
 static int qtotal = 0;
 static int qhead = 0;
@@ -193,6 +193,7 @@ log_addV (log_Level level, const char *fmt, va_list list)
 		fprintf (streamOut, "%s\n", full_msg);
 	}
 
+	/*
 	if ((int)level <= maxLevel)
 	{
 		int slot;
@@ -202,6 +203,7 @@ log_addV (log_Level level, const char *fmt, va_list list)
 		slot = acquireSlot ();
 		memcpy (queue[slot], full_msg, sizeof (queue[0]));
 	}
+	*/
 }
 
 void

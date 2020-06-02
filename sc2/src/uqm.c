@@ -240,6 +240,8 @@ void init_wii_file(void)
 	fatMountSimple("sd", &__io_wiisd);
 }
 
+#define UNBUFFERED_LOGFILE
+
 int
 main (int argc, char *argv[])
 {
@@ -286,13 +288,22 @@ main (int argc, char *argv[])
 	int i;
 
 	init_wii_file();
-	
+
 	// NOTE: we cannot use the logging facility yet because we may have to
 	//   log to a file, and we'll only get the log file name after parsing
 	//   the options.
 	optionsResult = parseOptions (argc, argv, &options);
 
-	log_init (15);
+	log_init (20);
+
+	//options.logFile = "sd:/apps/uqm/uqm.log";
+	options.logFile = NULL;
+	FILE *logFile = fopen("sd:/apps/uqm/uqm.log", "w");
+	if (logFile == NULL) {
+		fprintf(stderr, "Could not open log file");
+		exit(EXIT_FAILURE);
+	}
+	log_setOutput(logFile);
 
 	if (options.logFile != NULL)
 	{
@@ -351,11 +362,13 @@ main (int argc, char *argv[])
 	}
 
 	TFB_PreInit ();
-	mem_init ();
+	mem_init ();   // currently a noop
 	InitThreadSystem ();
 	log_initThreads ();
 	initIO ();
+	//log_add(log_User, "=== INIT: I/O system initialized.");
 	prepareConfigDir (options.configDir);
+	log_add(log_User, "=== INIT: Configuration directory prepared.");
 
 	PlayerControls[0] = CONTROL_TEMPLATE_KB_1;
 	PlayerControls[1] = CONTROL_TEMPLATE_JOY_1;
@@ -412,6 +425,9 @@ main (int argc, char *argv[])
 	prepareMeleeDir ();
 	prepareSaveDir ();
 	prepareShadowAddons (options.addons);
+
+	log_add(log_User, "=== INIT: content directory prepared");
+
 #if 0
 	initTempDir ();
 #endif
@@ -446,6 +462,9 @@ main (int argc, char *argv[])
 		optGamma = 1.0f; // failed or default
 	
 	InitColorMaps ();
+
+	log_add(log_User, "=== INIT: graphics initialized");
+
 	init_communication ();
 	/* TODO: Once threading is gone, restore initAudio here.
 	   initAudio calls AssignTask, which currently blocks on
@@ -458,7 +477,11 @@ main (int argc, char *argv[])
 			(volatile int *)ImmediateInputState.key, NUM_TEMPLATES, NUM_KEYS);
 	TFB_InitInput (TFB_INPUTDRIVER_SDL, 0);
 
+	log_add(log_User, "=== INIT: input subsystem initialized");
+
 	StartThread (Starcon2Main, NULL, 1024, "Starcon2Main");
+
+	log_add(log_User, "=== MAIN: main thread finished");
 
 	for (i = 0; i < 2000 && !MainExited; )
 	{
@@ -514,6 +537,7 @@ main (int argc, char *argv[])
 	}
 
 	HFree (options.addons);
+	fclose(logFile);
 	
 	return EXIT_SUCCESS;
 }

@@ -202,31 +202,16 @@ prepareConfigDir (const char *configDirName) {
 
 	if (configDirName == NULL)
 	{
-		configDirName = getenv("UQM_CONFIG_DIR");
-
-		if (configDirName == NULL)
-			configDirName = CONFIGDIR;
+		configDirName = CONFIGDIR;
 	}
-
-	if (expandPath (buf, PATH_MAX - 13, configDirName, EP_ALL_SYSTEM)
-			== -1)
-	{
-		// Doesn't have to be fatal, but might mess up things when saving
-		// config files.
-		log_add (log_Fatal, "Fatal error: Invalid path to config files.");
-		exit (EXIT_FAILURE);
-	}
-	configDirName = buf;
 
 	log_add (log_Debug, "Using config dir '%s'", configDirName);
 
-	// Set the environment variable UQM_CONFIG_DIR so UQM_MELEE_DIR
-	// and UQM_SAVE_DIR can refer to it.
-	setenv("UQM_CONFIG_DIR", configDirName, 1);
-
 	// Create the path upto the config dir, if not already existing.
+	/* assume no need to create config directory
 	if (mkdirhier (configDirName) == -1)
 		exit (EXIT_FAILURE);
+	*/
 
 	contentHandle = uio_mountDir (repository, "/",
 			uio_FSTYPE_STDIO, NULL, NULL, configDirName, autoMount,
@@ -252,24 +237,13 @@ prepareSaveDir (void) {
 	char buf[PATH_MAX];
 	const char *saveDirName;
 
-	saveDirName = getenv("UQM_SAVE_DIR");
-	if (saveDirName == NULL)
-		saveDirName = SAVEDIR;
+	saveDirName = SAVEDIR;
 	
-	if (expandPath (buf, PATH_MAX - 13, saveDirName, EP_ALL_SYSTEM) == -1)
-	{
-		// Doesn't have to be fatal, but might mess up things when saving
-		// config files.
-		log_add (log_Fatal, "Fatal error: Invalid path to config files.");
-		exit (EXIT_FAILURE);
-	}
-
-	saveDirName = buf;
-	setenv("UQM_SAVE_DIR", saveDirName, 1);
-
 	// Create the path upto the save dir, if not already existing.
+	/* TODO: create it in the SD card
 	if (mkdirhier (saveDirName) == -1)
 		exit (EXIT_FAILURE);
+	*/
 
 	log_add (log_Debug, "Saved games are kept in %s.", saveDirName);
 
@@ -289,24 +263,13 @@ prepareMeleeDir (void) {
 	char buf[PATH_MAX];
 	const char *meleeDirName;
 
-	meleeDirName = getenv("UQM_MELEE_DIR");
-	if (meleeDirName == NULL)
-		meleeDirName = MELEEDIR;
+	meleeDirName = MELEEDIR;
 	
-	if (expandPath (buf, PATH_MAX - 13, meleeDirName, EP_ALL_SYSTEM) == -1)
-	{
-		// Doesn't have to be fatal, but might mess up things when saving
-		// config files.
-		log_add (log_Fatal, "Fatal error: Invalid path to config files.");
-		exit (EXIT_FAILURE);
-	}
-
-	meleeDirName = buf;
-	setenv("UQM_MELEE_DIR", meleeDirName, 1);
-
 	// Create the path upto the save dir, if not already existing.
+	/* TODO: create the directory in the SD card if it does not exist
 	if (mkdirhier (meleeDirName) == -1)
 		exit (EXIT_FAILURE);
+	*/
 
 	meleeDir = uio_openDirRelative (configDir, "teams", 0);
 			// TODO: this doesn't work if the save dir is not

@@ -316,7 +316,7 @@ initIO (void)
 	rootDir = uio_openDir (repository, "/", 0);
 	if (rootDir == NULL)
 	{
-		log_add (log_Fatal, "Could not open '/' dir.");
+		log_add (log_Fatal, "==1== Could not open '/' dir.");
 		return -1;
 	}
 	return 0;

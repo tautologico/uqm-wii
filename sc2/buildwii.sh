@@ -1,6 +1,5 @@
 #!/bin/sh
 
-export BUILD_HOST=WII
-export BUILD_HOST_ENDIAN=big
+make -f Makefile.wii uqm-wii
+elf2dol uqm-wii uqm-wii.dol
 
-/bin/sh build/unix/build.sh "$@"

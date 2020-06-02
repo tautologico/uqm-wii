@@ -25,6 +25,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "libs/log.h"
+
 #include "iointrn.h"
 #include "ioaux.h"
 #include "mount.h"
@@ -225,6 +227,8 @@ uio_mountDir(uio_Repository *destRep, const char *mountPoint,
 		errno = savedErrno;
 		return NULL;
 	}
+
+	//log_add(log_User, "=== managed to create/mount root of filesystem");
 
 	if (handle) {
 		// Close this reference to handle.
