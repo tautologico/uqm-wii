@@ -282,7 +282,6 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  safeMode,          false ),
 	};
 	struct options_struct defaults = options;
-	int optionsResult;
 	int gfxDriver;
 	int gfxFlags;
 	int i;
@@ -292,11 +291,12 @@ main (int argc, char *argv[])
 	// NOTE: we cannot use the logging facility yet because we may have to
 	//   log to a file, and we'll only get the log file name after parsing
 	//   the options.
-	optionsResult = parseOptions (argc, argv, &options);
+	// no need to process command-line options
+	//int optionsResult;
+	//optionsResult = parseOptions (argc, argv, &options);
 
-	log_init (20);
+	log_init (10);
 
-	//options.logFile = "sd:/apps/uqm/uqm.log";
 	options.logFile = NULL;
 	FILE *logFile = fopen("sd:/apps/uqm/uqm.log", "w");
 	if (logFile == NULL) {
@@ -305,29 +305,6 @@ main (int argc, char *argv[])
 	}
 	log_setOutput(logFile);
 
-	if (options.logFile != NULL)
-	{
-		int i;
-		if (!freopen (options.logFile, "w", stderr))
-		{
-			printf ("Error %d calling freopen() on stderr\n", errno);
-			return EXIT_FAILURE;
-		}
-#ifdef UNBUFFERED_LOGFILE
-		setbuf (stderr, NULL);
-#endif
-		for (i = 0; i < argc; ++i)
-			log_add (log_User, "argv[%d] = [%s]", i, argv[i]);
-	}
-
-	if (options.runMode == runMode_version)
-	{
- 		printf ("%d.%d.%d%s\n", UQM_MAJOR_VERSION, UQM_MINOR_VERSION,
-				UQM_PATCH_VERSION, UQM_EXTRA_VERSION);
-		log_showBox (false, false);
-		return EXIT_SUCCESS;
-	}
-	
 	log_add (log_User, "The Ur-Quan Masters v%d.%d.%d%s (compiled %s %s)\n"
 	        "This software comes with ABSOLUTELY NO WARRANTY;\n"
 			"for details see the included 'COPYING' file.\n",
@@ -346,19 +323,6 @@ main (int argc, char *argv[])
 	{	// Have some saved error to log
 		log_add (log_Error, "%s", errBuffer);
 		errBuffer[0] = '\0';
-	}
-
-	if (options.runMode == runMode_usage)
-	{
-		usage (stdout, &defaults);
-		log_showBox (true, false);
-		return EXIT_SUCCESS;
-	}
-
-	if (optionsResult != EXIT_SUCCESS)
-	{	// Options parsing failed. Oh, well.
-		log_add (log_Fatal, "Run with -h to see the allowed arguments.");
-		return optionsResult;
 	}
 
 	TFB_PreInit ();
