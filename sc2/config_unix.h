@@ -9,7 +9,8 @@
 #define CONFIG_UNIX_H_
 
 /* Directory where the UQM game data is located */
-#define CONTENTDIR "sd:/apps/uqm/content"
+//#define CONTENTDIR "sd:/apps/uqm/content"
+#define CONTENTDIR "content"
 
 /* Directory where game data will be stored */
 #define USERDIR "sd:/apps/uqm/user"
