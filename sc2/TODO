@@ -1,0 +1,9 @@
+# Wii version TODO
+
+## Implement mountDirZips in options.c without using regexes, to support loading .zip/.uqm
+
+Currently the documentation does not mention that you need regex support, and it 
+is treated in the build system as an option. However, if you don't compile with 
+regex support, loading the content and addons will fail. 
+
+A regex match is used in a context where it's quite unnecessary. 
