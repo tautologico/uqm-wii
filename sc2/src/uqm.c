@@ -330,9 +330,7 @@ main (int argc, char *argv[])
 	InitThreadSystem ();
 	log_initThreads ();
 	initIO ();
-	//log_add(log_User, "=== INIT: I/O system initialized.");
 	prepareConfigDir (options.configDir);
-	log_add(log_User, "=== INIT: Configuration directory prepared.");
 
 	PlayerControls[0] = CONTROL_TEMPLATE_KB_1;
 	PlayerControls[1] = CONTROL_TEMPLATE_JOY_1;

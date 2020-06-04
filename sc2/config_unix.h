@@ -60,5 +60,10 @@
 /* using tremor for oggvorbis */
 #define OVCODEC_TREMOR
 
+/* using HAVE_DRIVE_LETTERS to deal with SD Card paths */
+#define HAVE_DRIVE_LETTERS
+// TODO: change to more appropriate name like SD_CARD_PATHS
+
+
 #endif  /* CONFIG_UNIX_H_ */
 

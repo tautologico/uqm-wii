@@ -107,7 +107,7 @@ uio_closeRepository(uio_Repository *repository) {
 /*
  * Function name: uio_mountDir
  * Description:   Grafts a directory from inside a physical fileSystem
- *                into the locical filesystem, at a specified directory.
+ *                into the logical filesystem, at a specified directory.
  * Arguments:     destRep - the repository where the newly mounted dir
  *                		is to be grafted.
  *                mountPoint - the path to the directory where the dir
@@ -198,9 +198,6 @@ uio_mountDir(uio_Repository *destRep, const char *mountPoint,
 		handle = uio_open(sourceDir, sourcePath,
 				((flags & uio_MOUNT_RDONLY) == uio_MOUNT_RDONLY ?
 				O_RDONLY : O_RDWR)
-#ifdef WIN32
-				| O_BINARY
-#endif
 				, 0);
 		if (handle == NULL) {
 			// errno is set
@@ -228,8 +225,6 @@ uio_mountDir(uio_Repository *destRep, const char *mountPoint,
 		return NULL;
 	}
 
-	//log_add(log_User, "=== managed to create/mount root of filesystem");
-
 	if (handle) {
 		// Close this reference to handle.
 		// The physical layer may store the link in pRoot, in which it
@@ -246,12 +241,6 @@ uio_mountDir(uio_Repository *destRep, const char *mountPoint,
 		uio_MountInfo *mountInfo;
 		uio_MountTree *mountTree;
 		uio_PDirHandle *pRootHandle;
-#ifdef BACKSLASH_IS_PATH_SEPARATOR
-		char *unixPath;
-		
-		unixPath = dosToUnixPath(inPath);
-		inPath = unixPath;
-#endif  /* BACKSLASH_IS_PATH_SEPARATOR */
 
 		if (inPath[0] == '/')
 			inPath++;
@@ -260,9 +249,6 @@ uio_mountDir(uio_Repository *destRep, const char *mountPoint,
 				&endDirHandle, &endInPath);
 		if (*endInPath != '\0') {
 			// Path inside the filesystem to mount does not exist.
-#ifdef BACKSLASH_IS_PATH_SEPARATOR
-			uio_free(unixPath);
-#endif  /* BACKSLASH_IS_PATH_SEPARATOR */
 			uio_PDirHandle_unref(endDirHandle);
 			uio_PRoot_unrefMount(pRoot);
 			errno = ENOENT;
@@ -272,10 +258,7 @@ uio_mountDir(uio_Repository *destRep, const char *mountPoint,
 		dirName = uio_malloc(endInPath - inPath + 1);
 		memcpy(dirName, inPath, endInPath - inPath);
 		dirName[endInPath - inPath] = '\0';
-#ifdef BACKSLASH_IS_PATH_SEPARATOR
-		// InPath is a copy with the paths fixed.
-		uio_free(unixPath);
-#endif  /* BACKSLASH_IS_PATH_SEPARATOR */
+
 		mountInfo = uio_MountInfo_new(fsType, NULL, endDirHandle, dirName,
 				autoMount, NULL, flags);
 		uio_repositoryAddMount(destRep, mountInfo,

@@ -365,49 +365,29 @@ stdio_getPDirEntryHandle(const uio_PDirHandle *pDirHandle, const char *name) {
 	char *path;
 	struct stat statBuf;
 #ifdef HAVE_DRIVE_LETTERS
-	char driveName[3];
+	char *driveName = "sd:";
 #endif  /* HAVE_DRIVE_LETTERS */
 
-#if defined(HAVE_DRIVE_LETTERS) || defined(HAVE_UNC_PATHS)
-	if (pDirHandle->extra->extra->upDir == NULL) {
-		// Top dir. Contains only drive letters and UNC \\server\share
-		// parts.
 #ifdef HAVE_DRIVE_LETTERS
-		if (isDriveLetter(name[0]) && name[1] == ':' && name[2] == '\0') {
-			driveName[0] = tolower(name[0]);
-			driveName[1] = ':';
-			driveName[2] = '\0';
-			name = driveName;
-		} else
-#endif  /* HAVE_DRIVE_LETTERS */
-#ifdef HAVE_UNC_PATHS
-		{
-			size_t uncLen;
-
-			uncLen = uio_skipUNCServerShare(name);
-			if (name[uncLen] != '\0') {
-				// 'name' contains neither a drive letter, nor the
-				// first part of a UNC path.
-				return NULL;
-			}
-		}
-#else /* !defined(HAVE_UNC_PATHS) */
-		{
-			// Make sure that there is an 'else' case if HAVE_DRIVE_LETTERS
-			// is defined.
-		}
-#endif  /* HAVE_UNC_PATHS */
+	if (pDirHandle->extra->extra->upDir == NULL) {
+		/* top path must be the designator 'sd:' */
+		if ( (name[0] == 'S' || name[0] == 's') &&
+		     (name[1] == 'D' || name[1] == 'd') &&
+			 (name[2] == ':') ) {
+		    name = driveName;
+		} 
+		else
+			return NULL;
 	}
-#endif  /* defined(HAVE_DRIVE_LETTERS) || defined(HAVE_UNC_PATHS) */
+#endif  /* HAVE_DRIVE_LETTERS */
 	
 	result = uio_GPDir_getPDirEntryHandle(pDirHandle, name);
 	if (result != NULL)
 		return result;
 
-#if defined(HAVE_DRIVE_LETTERS) || defined(HAVE_UNC_PATHS)
+#ifdef HAVE_DRIVE_LETTERS
 	if (pDirHandle->extra->extra->upDir == NULL) {
-		// Need to create a 'directory' for the drive letter or UNC
-		// "\\server\share" part.
+		// Need to create a 'directory' for the sd: designator
 		// It's no problem if we happen to create a dir for a non-existing
 		// drive. It should just produce an empty dir.
 		uio_GPDir *gPDir;
@@ -417,7 +397,7 @@ stdio_getPDirEntryHandle(const uio_PDirHandle *pDirHandle, const char *name) {
 		return (uio_PDirEntryHandle *) uio_PDirHandle_new(
 				pDirHandle->pRoot, gPDir);
 	}
-#endif  /* defined(HAVE_DRIVE_LETTERS) || defined(HAVE_UNC_PATHS) */
+#endif  /* HAVE_DRIVE_LETTERS */
 	
 	pathUpTo = stdio_getPath(pDirHandle->extra);
 	if (pathUpTo == NULL) {
@@ -431,25 +411,11 @@ stdio_getPDirEntryHandle(const uio_PDirHandle *pDirHandle, const char *name) {
 	}
 
 	if (stat(path, &statBuf) == -1) {
-#ifdef __SYMBIAN32__
-		// XXX: HACK: If we don't have access to a directory, we can still
-		// have access to the underlying entries. We don't actually know
-		// whether the entry is a directory, but I know of no way to find
-		// out. We just pretend that it is; worst case, a file which we can't
-		// access shows up as a directory which we can't access.
-		if (errno == EACCES) {
-			statBuf.st_mode = S_IFDIR;
-					// Fake a directory; the other fields of the stat
-					// structure are unused.
-		} else
-#endif
-		{
-			// errno is set.
-			int savedErrno = errno;
-			uio_free(path);
-			errno = savedErrno;
-			return NULL;
-		}
+		// errno is set.
+		int savedErrno = errno;
+		uio_free(path);
+		errno = savedErrno;
+		return NULL;
 	}
 	uio_free(path);
 
@@ -485,8 +451,8 @@ stdio_mount(uio_Handle *handle, int flags) {
 	assert (handle == NULL);
 	extra = stdio_GPDirData_new(
 			uio_strdup("") /* name */,
-#if defined(HAVE_DRIVE_LETTERS) || defined(HAVE_UNC_PATHS)
-			// Full paths start with a drive letter or \\server\share
+#ifdef HAVE_DRIVE_LETTERS
+			// Full paths start with sd:
 			uio_strdup("") /* cached path */,
 #else
 			uio_strdup("/") /* cached path */,
@@ -569,14 +535,14 @@ stdio_openEntries(uio_PDirHandle *pDirHandle) {
 	result = stdio_EntriesIterator_new(dirHandle);
 	result->status = readdir_r(dirHandle, result->direntBuffer,
 			&result->entry);
-#ifndef WIN32
-#	ifdef DEBUG
+
+#ifdef DEBUG
 	if (result->status != 0) {
 		fprintf(stderr, "Warning: readdir_r() failed: %s\n",
 				strerror(result->status));
 	}
-#	endif
 #endif
+
 	return result;
 }
 #endif
@@ -762,15 +728,15 @@ stdio_getPath(uio_GPDir *gPDir) {
 		size_t upPathLen, nameLen;
 	
 		if (gPDir->extra->upDir == NULL) {
-#if defined(HAVE_DRIVE_LETTERS) || defined(HAVE_UNC_PATHS)
-			// Drive letter or UNC \\server\share still needs to follow.
+#ifdef HAVE_DRIVE_LETTERS
+			// sd: designator still needs to follow.
 			gPDir->extra->cachedPath = uio_malloc(1);
 			gPDir->extra->cachedPath[0] = '\0';
 #else
 			gPDir->extra->cachedPath = uio_malloc(2);
 			gPDir->extra->cachedPath[0] = '/';
 			gPDir->extra->cachedPath[1] = '\0';
-#endif  /* defined(HAVE_DRIVE_LETTERS) || defined(HAVE_UNC_PATHS) */
+#endif  /* HAVE_DRIVE_LETTERS */
 			return gPDir->extra->cachedPath;
 		}
 		
@@ -780,7 +746,7 @@ stdio_getPath(uio_GPDir *gPDir) {
 			return NULL;
 		}
 			
-#if defined(HAVE_DRIVE_LETTERS) || defined(HAVE_UNC_PATHS)
+#if defined(HAVE_DRIVE_LETTERS)
 		if (upPath[0] == '\0') {
 			// The up dir is the root dir. Directly below the root dir are
 			// only dirs for drive letters and UNC \\share\server parts.
@@ -788,14 +754,14 @@ stdio_getPath(uio_GPDir *gPDir) {
 			gPDir->extra->cachedPath = uio_strdup(gPDir->extra->name);
 			return gPDir->extra->cachedPath;
 		}
-#endif  /* defined(HAVE_DRIVE_LETTERS) || defined(HAVE_UNC_PATHS) */
+#endif  /* defined(HAVE_DRIVE_LETTERS) */
 		upPathLen = strlen(upPath);
-#if !defined(HAVE_DRIVE_LETTERS) && !defined(HAVE_UNC_PATHS)
+#if !defined(HAVE_DRIVE_LETTERS)
 		if (upPath[upPathLen - 1] == '/') {
 			// should only happen for "/"
 			upPathLen--;
 		}
-#endif  /* !defined(HAVE_DRIVE_LETTERS) && !defined(HAVE_UNC_PATHS) */
+#endif  /* !defined(HAVE_DRIVE_LETTERS) */
 		nameLen = strlen(gPDir->extra->name);
 		if (upPathLen + nameLen + 1 >= PATH_MAX) {
 			errno = ENAMETOOLONG;

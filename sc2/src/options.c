@@ -207,11 +207,10 @@ prepareConfigDir (const char *configDirName) {
 
 	log_add (log_Debug, "Using config dir '%s'", configDirName);
 
-	// Create the path upto the config dir, if not already existing.
-	/* assume no need to create config directory
-	if (mkdirhier (configDirName) == -1)
-		exit (EXIT_FAILURE);
-	*/
+	// Wii verion on SD:
+	//
+	// We assume that the configDirName is a full path from 
+	// the root of the SD Card, eg. "sd:/apps/uqm/config"
 
 	contentHandle = uio_mountDir (repository, "/",
 			uio_FSTYPE_STDIO, NULL, NULL, configDirName, autoMount,
