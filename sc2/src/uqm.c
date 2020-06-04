@@ -386,7 +386,7 @@ main (int argc, char *argv[])
 	prepareContentDir (options.contentDir, options.addonDir, argv[0]);
 	prepareMeleeDir ();
 	prepareSaveDir ();
-	prepareShadowAddons (options.addons);
+	// prepareShadowAddons (options.addons);  // don't even know what shadow addons are
 
 	log_add(log_User, "=== INIT: content directory prepared");
 

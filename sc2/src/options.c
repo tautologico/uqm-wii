@@ -148,20 +148,6 @@ prepareContentDir (const char *contentDirName, const char* addonDirName, const c
 			"../../content" /* For running from MSVC */
 		};
 		loc = findFileInDirs (locs, sizeof locs / sizeof locs[0], testFile);
-
-#ifdef __APPLE__
-		/* On OSX, if the content can't be found in any of the static
-		 * locations, attempt to look inside the application bundle,
-		 * by looking relative to the location of the uqm executable. */
-		if (loc == NULL)
-		{
-			char *tempDir = (char *) HMalloc (PATH_MAX);
-			snprintf (tempDir, PATH_MAX, "%s/../Resources/content",
-					dirname (execFile));
-			loc = findFileInDirs ((const char **) &tempDir, 1, testFile);
-			HFree (tempDir);
-		}
-#endif
 	}
 	else
 	{
@@ -188,14 +174,9 @@ prepareContentDir (const char *contentDirName, const char* addonDirName, const c
 	if (addonDirName)
 		log_add (log_Debug, "Using '%s' as addon dir.", addonDirName);
 	mountAddonDir (repository, contentMountHandle, addonDirName);
-
-#ifndef __APPLE__
-	(void) execFile;
-#endif
 }
 
-void
-prepareConfigDir (const char *configDirName) {
+void prepareConfigDir (const char *configDirName) {
 	char buf[PATH_MAX];
 	static uio_AutoMount *autoMount[] = { NULL };
 	uio_MountHandle *contentHandle;
@@ -231,8 +212,7 @@ prepareConfigDir (const char *configDirName) {
 	}
 }
 
-void
-prepareSaveDir (void) {
+void prepareSaveDir (void) {
 	char buf[PATH_MAX];
 	const char *saveDirName;
 
@@ -309,7 +289,8 @@ mountContentDir (uio_Repository *repository, const char *contentPath)
 	packagesDir = uio_openDir (repository, "/packages", 0);
 	if (packagesDir != NULL)
 	{
-		mountDirZips (packagesDir, "/", uio_MOUNT_BELOW, contentMountHandle);
+		//mountDirZips (packagesDir, "/", uio_MOUNT_BELOW, contentMountHandle);
+		log_add(log_User, "We're not loading packages at the moment, sorry");
 		uio_closeDir (packagesDir);	
 	}
 
@@ -354,7 +335,9 @@ mountAddonDir (uio_Repository *repository, uio_MountHandle *contentMountHandle,
 		return;
 	}
 
-	mountDirZips (addonsDir, "addons", uio_MOUNT_BELOW, mountHandle);
+	// have to disable because it requires regex
+	// TODO: enable the call again once mountDirZips is fixed
+	//mountDirZips (addonsDir, "addons", uio_MOUNT_BELOW, mountHandle);
 			
 	availableAddons = uio_getDirList (addonsDir, "", "", match_MATCH_PREFIX);
 	if (availableAddons != NULL)
@@ -401,7 +384,9 @@ mountAddonDir (uio_Repository *repository, uio_MountHandle *contentMountHandle,
 					 "not found; addon skipped.", addon);
 				continue;
 			}
-			mountDirZips (addonDir, mountname, uio_MOUNT_BELOW, mountHandle);
+			// have to disable because it requires regex
+			// TODO: enable the call again once mountDirZips is fixed
+			//mountDirZips (addonDir, mountname, uio_MOUNT_BELOW, mountHandle);
 			uio_closeDir (addonDir);
 		}
 	}
