@@ -24,7 +24,7 @@
 #endif
 #include "libs/log.h"
 
-#if defined(PROFILE_THREADS) && !defined(WIN32)
+#if defined(PROFILE_THREADS)
 #include <sys/time.h>
 #include <sys/resource.h>
 #endif

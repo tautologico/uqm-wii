@@ -214,18 +214,8 @@ void prepareConfigDir (const char *configDirName) {
 
 void prepareSaveDir (void) {
 	char buf[PATH_MAX];
-	const char *saveDirName;
 
-	saveDirName = SAVEDIR;
-	
-	// Create the path upto the save dir, if not already existing.
-	/* TODO: create it in the SD card
-	if (mkdirhier (saveDirName) == -1)
-		exit (EXIT_FAILURE);
-	*/
-
-	log_add (log_Debug, "Saved games are kept in %s.", saveDirName);
-
+	// ignores configuration and uses configDir/save
 	saveDir = uio_openDirRelative (configDir, "save", 0);
 			// TODO: this doesn't work if the save dir is not
 			//       "save" in the config dir.
@@ -240,16 +230,8 @@ void prepareSaveDir (void) {
 void
 prepareMeleeDir (void) {
 	char buf[PATH_MAX];
-	const char *meleeDirName;
 
-	meleeDirName = MELEEDIR;
-	
-	// Create the path upto the save dir, if not already existing.
-	/* TODO: create the directory in the SD card if it does not exist
-	if (mkdirhier (meleeDirName) == -1)
-		exit (EXIT_FAILURE);
-	*/
-
+	// ignores configuration and tries to open configDir/teams
 	meleeDir = uio_openDirRelative (configDir, "teams", 0);
 			// TODO: this doesn't work if the save dir is not
 			//       "teams" in the config dir.

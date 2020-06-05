@@ -256,7 +256,7 @@ main (int argc, char *argv[])
 
 		INIT_CONFIG_OPTION(  opengl,            false ),
 		INIT_CONFIG_OPTION2( resolution,        640, 480 ),
-		INIT_CONFIG_OPTION(  fullscreen,        false ),
+		INIT_CONFIG_OPTION(  fullscreen,        true ),
 		INIT_CONFIG_OPTION(  scanlines,         false ),
 		INIT_CONFIG_OPTION(  scaler,            0 ),
 		INIT_CONFIG_OPTION(  showFps,           false ),
@@ -304,6 +304,9 @@ main (int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 	log_setOutput(logFile);
+
+	// redirect error output to an error log
+	freopen("error.log", "w", stderr);
 
 	log_add (log_User, "The Ur-Quan Masters v%d.%d.%d%s (compiled %s %s)\n"
 	        "This software comes with ABSOLUTELY NO WARRANTY;\n"
@@ -388,8 +391,6 @@ main (int argc, char *argv[])
 	prepareSaveDir ();
 	// prepareShadowAddons (options.addons);  // don't even know what shadow addons are
 
-	log_add(log_User, "=== INIT: content directory prepared");
-
 #if 0
 	initTempDir ();
 #endif
@@ -407,8 +408,8 @@ main (int argc, char *argv[])
 	NetManager_init ();
 #endif
 
-	gfxDriver = options.opengl.value ?
-			TFB_GFXDRIVER_SDL_OPENGL : TFB_GFXDRIVER_SDL_PURE;
+	//gfxDriver = options.opengl.value ? TFB_GFXDRIVER_SDL_OPENGL : TFB_GFXDRIVER_SDL_PURE;
+	gfxDriver = TFB_GFXDRIVER_SDL_PURE;
 	gfxFlags = options.scaler.value;
 	if (options.fullscreen.value)
 		gfxFlags |= TFB_GFXFLAGS_FULLSCREEN;
@@ -423,11 +424,10 @@ main (int argc, char *argv[])
 	else
 		optGamma = 1.0f; // failed or default
 	
-	InitColorMaps ();
+	InitColorMaps();
 
-	log_add(log_User, "=== INIT: graphics initialized");
+	init_communication();   // also a no-op
 
-	init_communication ();
 	/* TODO: Once threading is gone, restore initAudio here.
 	   initAudio calls AssignTask, which currently blocks on
 	   ProcessThreadLifecycles... */
@@ -437,13 +437,11 @@ main (int argc, char *argv[])
 			sizeof (int [NUM_TEMPLATES][NUM_KEYS]));
 	TFB_SetInputVectors (ImmediateInputState.menu, NUM_MENU_KEYS,
 			(volatile int *)ImmediateInputState.key, NUM_TEMPLATES, NUM_KEYS);
-	TFB_InitInput (TFB_INPUTDRIVER_SDL, 0);
+	TFB_InitInput(TFB_INPUTDRIVER_SDL, 0);
 
-	log_add(log_User, "=== INIT: input subsystem initialized");
+	StartThread(Starcon2Main, NULL, 1024, "Starcon2Main");
 
-	StartThread (Starcon2Main, NULL, 1024, "Starcon2Main");
-
-	log_add(log_User, "=== MAIN: main thread finished");
+	log_add(log_User, "=== MAIN: main thread started");
 
 	for (i = 0; i < 2000 && !MainExited; )
 	{

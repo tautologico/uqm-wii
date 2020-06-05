@@ -256,7 +256,6 @@ TFB_InitInput (int driver, int flags)
 	SDL_EnableUNICODE(1);
 	(void)SDL_GetKeyState (&num_keys);
 	kbdstate = (int *)HMalloc (sizeof (int) * (num_keys + 1));
-	
 
 #ifdef HAVE_JOYSTICK
 	initJoystick ();
