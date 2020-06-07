@@ -388,8 +388,9 @@ mountDirZips (uio_DirHandle *dirHandle, const char *mountPoint,
 	static uio_AutoMount *autoMount[] = { NULL };
 	uio_DirList *dirList;
 
-	dirList = uio_getDirList (dirHandle, "", "\\.([zZ][iI][pP]|[uU][qQ][mM])$",
-			match_MATCH_REGEX);
+	//dirList = uio_getDirList (dirHandle, "", "\\.([zZ][iI][pP]|[uU][qQ][mM])$", match_MATCH_REGEX);
+	dirList = uio_getDirList(dirHandle, "", ".uqm", match_MATCH_SUFFIX);
+
 	if (dirList != NULL)
 	{
 		int i;
@@ -405,8 +406,8 @@ mountDirZips (uio_DirHandle *dirHandle, const char *mountPoint,
 						dirList->names[i], strerror (errno));
 			}
 		}
+		uio_DirList_free (dirList);
 	}
-	uio_DirList_free (dirList);
 }
 
 int
