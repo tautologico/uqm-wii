@@ -65,6 +65,8 @@
 #define HAVE_DRIVE_LETTERS
 // TODO: change to more appropriate name like SD_CARD_PATHS
 
+// named synchronization, seems to be required by the threading system
+#define NAMED_SYNCHRO
 
 #endif  /* CONFIG_UNIX_H_ */
 

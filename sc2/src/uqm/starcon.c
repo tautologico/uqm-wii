@@ -125,6 +125,8 @@ ProcessUtilityKeys (void)
 		exit (EXIT_SUCCESS);
 	}
 	
+	// always fullscreen on the wii
+#if 0
 	if (ImmediateInputState.menu[KEY_FULLSCREEN])
 	{
 		int flags = GfxFlags ^ TFB_GFXFLAGS_FULLSCREEN;
@@ -133,6 +135,7 @@ ProcessUtilityKeys (void)
 		TFB_DrawScreen_ReinitVideo (GraphicsDriver, flags, ScreenWidthActual,
 				ScreenHeightActual);
 	}
+#endif
 
 #if defined(DEBUG) || defined(USE_DEBUG_KEY)
 	{	// Only call the debug func on the rising edge of
@@ -159,29 +162,6 @@ Starcon2Main (void *threadArg)
 #ifdef DEBUG_SLEEP
 	mainThreadId = SDL_ThreadID();
 #endif
-
-#if CREATE_JOURNAL
-{
-int ac = argc;
-char **av = argv;
-
-while (--ac > 0)
-{
-	++av;
-	if ((*av)[0] == '-')
-	{
-		switch ((*av)[1])
-		{
-#if CREATE_JOURNAL
-			case 'j':
-				++create_journal;
-				break;
-#endif //CREATE_JOURNAL
-		}
-	}
-}
-}
-#endif // CREATE_JOURNAL
 
 	{
 		/* TODO: Put initAudio back in main where it belongs once threading
