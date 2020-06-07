@@ -90,7 +90,7 @@ UninitPlayerInput (void)
 BOOLEAN
 LoadKernel (int argc, char *argv[])
 {
-	InitSound (argc, argv);
+	InitSound(argc, argv);    // no-op
 	InitVideoPlayer (TRUE);
 
 	ScreenContext = CreateContext ("ScreenContext");
@@ -102,11 +102,11 @@ LoadKernel (int argc, char *argv[])
 	if (Screen == NULL)
 		return FALSE;
 
-	SetContext (ScreenContext);
-	SetContextFGFrame (Screen);
-	SetContextOrigin (MAKE_POINT (0, 0));
+	SetContext(ScreenContext);
+	SetContextFGFrame(Screen);
+	SetContextOrigin(MAKE_POINT (0, 0));
 
-	hResIndex = (RESOURCE_INDEX) InitResourceSystem ();
+	hResIndex = (RESOURCE_INDEX) InitResourceSystem();
 	if (hResIndex == 0)
 		return FALSE;
 	

@@ -26,6 +26,7 @@ extern void SignalStopMainThread (void);
 extern void ProcessUtilityKeys (void);
 
 extern int Starcon2Main (void *threadArg);
+extern int Starcon2MainLoop(void);
 extern void FreeGameData (void);
 
 #if defined(__cplusplus)

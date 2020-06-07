@@ -155,6 +155,24 @@ ProcessUtilityKeys (void)
 
 /* TODO: Remove these declarations once threading is gone. */
 extern int snddriver, soundflags;
+extern sint32 initAudio (sint32 driver, sint32 flags);
+
+int Starcon2MainLoop(void)
+{
+	if (!LoadKernel(0,0))
+	{
+		log_add (log_Fatal, "\n  *** FATAL ERROR: Could not load basic content ***\n\nUQM requires at least the base content pack to run properly.");
+		log_add (log_Fatal, "This file is typically called uqm-%d.%d.0-content.uqm.  UQM was expecting", UQM_MAJOR_VERSION, UQM_MINOR_VERSION);
+		log_add (log_Fatal, "it in the %s/packages directory.", baseContentPath);
+		log_add (log_Fatal, "Either your installation did not install the content pack at all, or it\ninstalled it in a different directory.\n\nFix your installation and rerun UQM.\n\n  *******************\n");
+		log_showBox (true, true);
+
+		return EXIT_FAILURE;
+	}
+	log_add (log_Info, "We've loaded the Kernel");
+
+	return EXIT_SUCCESS;
+}
 
 int
 Starcon2Main (void *threadArg)
@@ -167,7 +185,6 @@ Starcon2Main (void *threadArg)
 		/* TODO: Put initAudio back in main where it belongs once threading
 		 *       is gone.
 		 */
-		extern sint32 initAudio (sint32 driver, sint32 flags);
 		initAudio (snddriver, soundflags);
 	}
 

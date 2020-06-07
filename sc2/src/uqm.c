@@ -366,6 +366,7 @@ main (int argc, char *argv[])
 	   thread doesn't work */
 	snddriver = options.soundDriver.value;
 	soundflags = options.soundQuality.value;
+	//initAudio(snddriver, soundflags);
 
 	// Fill in global variables:
 	opt3doMusic = options.use3doMusic.value;
@@ -439,63 +440,49 @@ main (int argc, char *argv[])
 			(volatile int *)ImmediateInputState.key, NUM_TEMPLATES, NUM_KEYS);
 	TFB_InitInput(TFB_INPUTDRIVER_SDL, 0);
 
-	StartThread(Starcon2Main, NULL, 1024, "Starcon2Main");
+	//StartThread(Starcon2Main, NULL, 1024, "Starcon2Main");
 
-	log_add(log_User, "=== MAIN: main thread started");
+	int result = Starcon2MainLoop();
 
-	for (i = 0; i < 2000 && !MainExited; )
-	{
-		if (QuitPosted)
-		{	/* Try to stop the main thread, but limited number of times */
-			SignalStopMainThread ();
-			++i;
-		}
-
-		TFB_ProcessEvents ();
-		ProcessUtilityKeys ();
-		ProcessThreadLifecycles ();
-		TFB_FlushGraphics ();
-	}
+	//fclose(logFile);
+	//return EXIT_SUCCESS;
 
 	/* Currently, we use atexit() callbacks everywhere, so we
 	 *   cannot simply call unInitAudio() and the like, because other
 	 *   tasks might still be using it */
-	if (MainExited)
-	{
-		TFB_UninitInput ();
-		unInitAudio ();
-		uninit_communication ();
+	TFB_UninitInput ();
+	//unInitAudio ();
+	uninit_communication ();
 		
-		TFB_PurgeDanglingGraphics ();
-		// Purge above refers to colormaps which have to be still up
-		UninitColorMaps ();
-		TFB_UninitGraphics ();
+	//TFB_PurgeDanglingGraphics ();
+	// Purge above refers to colormaps which have to be still up
+	UninitColorMaps ();
+	TFB_UninitGraphics ();
 
 #ifdef NETPLAY
-		NetManager_uninit ();
-		Network_uninit ();
+	NetManager_uninit ();
+	Network_uninit ();
 #endif
 
-		Callback_uninit ();
-		Alarm_uninit ();
+	Callback_uninit ();
+	Alarm_uninit ();
 		
-		luaUqm_uninit ();
+	luaUqm_uninit ();
 
-		CleanupTaskSystem ();
-		UnInitTimeSystem ();
+	CleanupTaskSystem ();
+	UnInitTimeSystem ();
 #if 0
 		unInitTempDir ();
 #endif
-		unprepareAllDirs ();
-		uninitIO ();
-		UnInitThreadSystem ();
-		mem_uninit ();
-	}
+	unprepareAllDirs ();
+	uninitIO ();
+	UnInitThreadSystem ();
+	mem_uninit ();
 
 	HFree (options.addons);
 	fclose(logFile);
 	
-	return EXIT_SUCCESS;
+	return result;
 }
 
 static void
