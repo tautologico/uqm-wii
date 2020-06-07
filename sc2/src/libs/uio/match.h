@@ -25,11 +25,6 @@ typedef struct match_MatchContext match_MatchContext;
 
 #include <sys/types.h>
 
-// TODO: make this into a configurable option
-//#define HAVE_GLOB
-#define HAVE_REGEX
-
-
 typedef enum {
 	match_MATCH_LITERAL = 0,
 	match_MATCH_PREFIX,

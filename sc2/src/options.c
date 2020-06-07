@@ -386,10 +386,13 @@ mountDirZips (uio_DirHandle *dirHandle, const char *mountPoint,
 		int relativeFlags, uio_MountHandle *relativeHandle)
 {
 	static uio_AutoMount *autoMount[] = { NULL };
-	uio_DirList *dirList;
+	uio_DirList *dirList = NULL;
 
-	dirList = uio_getDirList (dirHandle, "", "\\.([zZ][iI][pP]|[uU][qQ][mM])$",
-			match_MATCH_REGEX);
+	// this not only does not work when regex support is not compiled, it 
+	// causes failures that are badly handled
+	//
+	//dirList = uio_getDirList (dirHandle, "", "\\.([zZ][iI][pP]|[uU][qQ][mM])$",
+	//		match_MATCH_REGEX);
 	if (dirList != NULL)
 	{
 		int i;
@@ -405,8 +408,8 @@ mountDirZips (uio_DirHandle *dirHandle, const char *mountPoint,
 						dirList->names[i], strerror (errno));
 			}
 		}
+		uio_DirList_free (dirList);
 	}
-	uio_DirList_free (dirList);
 }
 
 int
@@ -415,8 +418,8 @@ loadIndices (uio_DirHandle *dir)
 	uio_DirList *indices;
 	int numLoaded = 0;
 
-	indices = uio_getDirList (dir, "", "\\.[rR][mM][pP]$",
-			match_MATCH_REGEX);		
+	//indices = uio_getDirList (dir, "", "\\.[rR][mM][pP]$", match_MATCH_REGEX);
+	indices = uio_getDirList(dir, "", ".rmp", match_MATCH_SUFFIX);
 
 	if (indices != NULL)
 	{
