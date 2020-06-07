@@ -415,8 +415,7 @@ loadIndices (uio_DirHandle *dir)
 	uio_DirList *indices;
 	int numLoaded = 0;
 
-	indices = uio_getDirList (dir, "", "\\.[rR][mM][pP]$",
-			match_MATCH_REGEX);		
+	indices = uio_getDirList (dir, "", ".rmp", match_MATCH_SUFFIX);		
 
 	if (indices != NULL)
 	{
