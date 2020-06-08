@@ -111,25 +111,27 @@ LoadKernel (int argc, char *argv[])
 		return FALSE;
 	
 	/* Load base content. */
-	if (loadIndices (contentDir) == 0)
+	if (loadIndices(contentDir) == 0)
 		return FALSE; // Must have at least one index in content dir
 
 	/* Load addons demanded by the current configuration. */
 	if (opt3doMusic)
 	{
-		loadAddon ("3domusic");
+		loadAddon("3domusic");
 	}
 
 	usingSpeech = optSpeech;
-	if (optSpeech && !loadAddon ("3dovoice"))
+	if (optSpeech && !loadAddon("3dovoice"))
 	{
 		usingSpeech = FALSE;
 	}
 
+	/*
 	if (optRemixMusic)
 	{
 		loadAddon ("remix");
 	}
+	*/
 
 	if (optWhichIntro == OPT_3DO)
 	{
@@ -137,7 +139,8 @@ LoadKernel (int argc, char *argv[])
 	}
 
 	/* Now load the rest of the addons, in order. */
-	prepareAddons (optAddons);
+	// disable it for now
+	// prepareAddons (optAddons);
 
 	{
 		COLORMAP ColorMapTab;
@@ -145,11 +148,11 @@ LoadKernel (int argc, char *argv[])
 		ColorMapTab = CaptureColorMap (LoadColorMap (STARCON_COLOR_MAP));
 		if (ColorMapTab == NULL)
 			return FALSE; // The most basic resource is missing
-		SetColorMap (GetColorMapAddress (ColorMapTab));
+		//SetColorMap (GetColorMapAddress (ColorMapTab));
 		DestroyColorMap (ReleaseColorMap (ColorMapTab));
 	}
 
-	InitPlayerInput ();
+	InitPlayerInput();   // no-op
 
 	GLOBAL (CurrentActivity) = (ACTIVITY)~0;
 	return TRUE;

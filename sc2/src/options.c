@@ -388,7 +388,6 @@ mountDirZips (uio_DirHandle *dirHandle, const char *mountPoint,
 	static uio_AutoMount *autoMount[] = { NULL };
 	uio_DirList *dirList;
 
-	//dirList = uio_getDirList (dirHandle, "", "\\.([zZ][iI][pP]|[uU][qQ][mM])$", match_MATCH_REGEX);
 	dirList = uio_getDirList(dirHandle, "", ".uqm", match_MATCH_SUFFIX);
 
 	if (dirList != NULL)
@@ -410,8 +409,7 @@ mountDirZips (uio_DirHandle *dirHandle, const char *mountPoint,
 	}
 }
 
-int
-loadIndices (uio_DirHandle *dir)
+int loadIndices(uio_DirHandle *dir)
 {
 	uio_DirList *indices;
 	int numLoaded = 0;
@@ -436,13 +434,12 @@ loadIndices (uio_DirHandle *dir)
 	return numLoaded;
 }
 
-BOOLEAN
-loadAddon (const char *addon)
+BOOLEAN loadAddon (const char *addon)
 {
 	uio_DirHandle *addonsDir, *addonDir;
 	int numLoaded;
 
-	addonsDir = uio_openDirRelative (contentDir, "addons", 0);
+	addonsDir = uio_openDirRelative(contentDir, "addons", 0);
 	if (addonsDir == NULL)
 	{
 		// No addon dir found.
@@ -451,7 +448,7 @@ loadAddon (const char *addon)
 				"options are ignored.");
 		return FALSE;
 	}
-	addonDir = uio_openDirRelative (addonsDir, addon, 0);
+	addonDir = uio_openDirRelative(addonsDir, addon, 0);
 	if (addonDir == NULL)
 	{
 		log_add (log_Warning, "Warning: Addon '%s' not found", addon);
@@ -459,8 +456,8 @@ loadAddon (const char *addon)
 		return FALSE;
 	}
 
-	numLoaded = loadIndices (addonDir);
-	if (!numLoaded)
+	numLoaded = loadIndices(addonDir);
+	if (numLoaded == 0)
 	{
 		log_add (log_Error, "No RMP index files were loaded for addon '%s'",
 				addon);
