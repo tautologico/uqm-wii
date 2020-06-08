@@ -233,9 +233,9 @@ release_colormap (TFB_ColorMap *map)
 void
 TFB_ReturnColorMap (TFB_ColorMap *map)
 {
-	LockMutex (maplock);
+	//LockMutex (maplock);
 	release_colormap (map);
-	UnlockMutex (maplock);
+	//UnlockMutex (maplock);
 }
 
 TFB_ColorMap *
@@ -243,9 +243,9 @@ TFB_GetColorMap (int index)
 {
 	TFB_ColorMap *map;
 
-	LockMutex (maplock);
+	//LockMutex (maplock);
 	map = get_colormap (index);
-	UnlockMutex (maplock);
+	//UnlockMutex (maplock);
 
 	return map;
 }
@@ -299,7 +299,8 @@ SetColorMap (COLORMAPPTR map)
 
 	total_size = end + 1;
 
-	LockMutex (maplock);
+	// no need to lock mutex in single-threaded mode
+	//LockMutex (maplock);
 
 	if (total_size > mapcount)
 		mapcount = total_size;
@@ -329,7 +330,7 @@ SetColorMap (COLORMAPPTR map)
 		release_colormap (oldmap);
 	}
 
-	UnlockMutex (maplock);
+	//UnlockMutex (maplock);
 
 	return TRUE;
 }
@@ -341,7 +342,7 @@ GetFadeAmount (void)
 {
 	int newAmount;
 
-	LockMutex (fadeLock);
+	//LockMutex (fadeLock);
 
 	if (fadeInterval)
 	{	// have a pending fade
@@ -365,7 +366,7 @@ GetFadeAmount (void)
 		newAmount = fadeAmount;
 	}
 
-	UnlockMutex (fadeLock);
+	//UnlockMutex (fadeLock);
 
 	return newAmount;
 }
@@ -383,9 +384,9 @@ finishPendingFade (void)
 static void
 FlushFadeXForms (void)
 {
-	LockMutex (fadeLock);
+	//LockMutex (fadeLock);
 	finishPendingFade ();
-	UnlockMutex (fadeLock);
+	//UnlockMutex (fadeLock);
 }
 
 DWORD
@@ -416,7 +417,7 @@ FadeScreen (ScreenFadeType fadeType, SIZE TimeInterval)
 	if (QuitPosted)
 		TimeInterval = 0;
 
-	LockMutex (fadeLock);
+	//LockMutex (fadeLock);
 
 	finishPendingFade ();
 
@@ -435,7 +436,7 @@ FadeScreen (ScreenFadeType fadeType, SIZE TimeInterval)
 		TimeOut = fadeStartTime + TimeInterval + 1;
 	}
 
-	UnlockMutex (fadeLock);
+	//UnlockMutex (fadeLock);
 
 	return TimeOut;
 }
@@ -474,7 +475,7 @@ XFormColorMap_step (void)
 	int x;
 	DWORD Now = GetTimeCounter ();
 
-	LockMutex (XFormControl.Lock);
+	//LockMutex (XFormControl.Lock);
 
 	for (x = 0; x <= XFormControl.Highest; ++x)
 	{
@@ -486,12 +487,12 @@ XFormColorMap_step (void)
 		if (index < 0)
 			continue; // unused slot
 
-		LockMutex (maplock);
+		//LockMutex (maplock);
 
 		curmap = colormaps[index];
 		if (!curmap)
 		{
-			UnlockMutex (maplock);
+			//UnlockMutex (maplock);
 			log_add (log_Error, "BUG: XFormColorMap_step(): no current map");
 			finish_colormap_xform (x);
 			continue;
@@ -533,7 +534,7 @@ XFormColorMap_step (void)
 			release_colormap (curmap);
 		}
 
-		UnlockMutex (maplock);
+		//UnlockMutex (maplock);
 
 		if (TicksLeft <= 0)
 		{	// asked for immediate xform or already done
@@ -543,7 +544,7 @@ XFormColorMap_step (void)
 		Changed = TRUE;
 	}
 
-	UnlockMutex (XFormControl.Lock);
+	//UnlockMutex (XFormControl.Lock);
 
 	return Changed;
 }
@@ -553,7 +554,7 @@ FlushPLUTXForms (void)
 {
 	int i;
 
-	LockMutex (XFormControl.Lock);
+	//LockMutex (XFormControl.Lock);
 
 	for (i = 0; i <= XFormControl.Highest; ++i)
 	{
@@ -562,7 +563,7 @@ FlushPLUTXForms (void)
 	}
 	XFormControl.Highest = -1; // all gone
 
-	UnlockMutex (XFormControl.Lock);
+	//UnlockMutex (XFormControl.Lock);
 }
 
 static DWORD
@@ -579,7 +580,8 @@ XFormPLUT (COLORMAPPTR ColorMapPtr, SIZE TimeInterval)
 	Now = GetTimeCounter ();
 	index = *(UBYTE*)ColorMapPtr;
 
-	LockMutex (XFormControl.Lock);
+	//LockMutex (XFormControl.Lock);
+	
 	// Find an available slot, or reuse if required
 	for (x = 0; x <= XFormControl.Highest
 			&& index != XFormControl.TaskControl[x].CMapIndex;
@@ -609,17 +611,17 @@ XFormPLUT (COLORMAPPTR ColorMapPtr, SIZE TimeInterval)
 		XFormControl.Highest = x;
 
 	// make a copy of the current map
-	LockMutex (maplock);
+	//LockMutex (maplock);
 	map = colormaps[index];
 	if (!map)
 	{
-		UnlockMutex (maplock);
-		UnlockMutex (XFormControl.Lock);
+		//UnlockMutex (maplock);
+		//UnlockMutex (XFormControl.Lock);
 		log_add (log_Warning, "BUG: XFormPLUT(): no current map");
 		return (0);
 	}
 	GetColorMapColors (control->OldCMap, map);
-	UnlockMutex (maplock);
+	//UnlockMutex (maplock);
 
 	control->CMapIndex = index;
 	control->CMapPtr = ColorMapPtr;
@@ -629,7 +631,7 @@ XFormPLUT (COLORMAPPTR ColorMapPtr, SIZE TimeInterval)
 	control->StartTime = Now;
 	control->EndTime = EndTime = Now + control->Ticks;
 
-	UnlockMutex (XFormControl.Lock);
+	//UnlockMutex (XFormControl.Lock);
 
 	return (EndTime);
 }
