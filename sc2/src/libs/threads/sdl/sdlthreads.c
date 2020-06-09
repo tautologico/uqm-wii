@@ -343,85 +343,28 @@ CreateMutex_SDL (const char *name, DWORD syncClass)
 CreateMutex_SDL (void)
 #endif
 {
-	Mut *mutex = malloc (sizeof (Mut));
-	if (mutex != NULL)
-	{
-		mutex->mutex = SDL_CreateMutex();
-#ifdef TRACK_CONTENTION
-		mutex->owner = 0;
-#endif
-#ifdef NAMED_SYNCHRO
-		mutex->name = name;
-		mutex->syncClass = syncClass;
-#endif
-	}
-
-	if ((mutex == NULL) || (mutex->mutex == NULL))
-	{
-#ifdef NAMED_SYNCHRO
-		/* logging depends on Mutexes, so we have to use the
-		 * non-threaded version instead */
-		log_add_nothread (log_Fatal, "Could not initialize mutex '%s':"
-				"aborting.", name);
-#else
-		log_add_nothread (log_Fatal, "Could not initialize mutex:"
-				"aborting.");
-#endif
-		exit (EXIT_FAILURE);
-	}
-
-	return mutex;
+	log_add(log_Warn, "Warning: attempt to create mutex in single-threaded code.");
+	return NULL;
 }
 
 void
 DestroyMutex_SDL (Mutex m)
 {
-	Mut *mutex = (Mut *)m;
-	SDL_DestroyMutex (mutex->mutex);
-	free (mutex);
+	log_add(log_Warn, "Warning: attempt to destroy mutex in single-threaded code.");
 }
 
 void
 LockMutex_SDL (Mutex m)
 {
-	Mut *mutex = (Mut *)m;
-#ifdef TRACK_CONTENTION
-	/* This code isn't really quite right; race conditions between
-	 * check and lock remain and can produce reports of contention
-	 * where the thread never sleeps, or fail to report in
-	 * situations where it does.  If tracking with perfect
-	 * accuracy becomes important, the TRACK_CONTENTION mutex will
-	 * need to handle its own wake/sleep cycles with condition
-	 * variables (check the history of this file for the
-	 * CrossThreadMutex code).  This almost-measure is being added
-	 * because for the most part it should suffice. */
-	if (mutex->owner && (mutex->syncClass & TRACK_CONTENTION_CLASSES))
-	{	/* logging depends on Mutexes, so we have to use the
-		 * non-threaded version instead */
-		log_add_nothread (log_Debug, "Thread '%s' blocking on mutex '%s'",
-				MyThreadName (), mutex->name);
-	}
-#endif
-	while (SDL_mutexP (mutex->mutex) != 0)
-	{
-		TaskSwitch_SDL ();
-	}
-#ifdef TRACK_CONTENTION
-	mutex->owner = SDL_ThreadID ();
-#endif
+	log_add(log_Fatal, "LockMutex was called in single-threaded code. Exiting.");
+	exit(EXIT_FAILURE);
 }
 
 void
 UnlockMutex_SDL (Mutex m)
 {
-	Mut *mutex = (Mut *)m;
-#ifdef TRACK_CONTENTION
-	mutex->owner = 0;
-#endif
-	while (SDL_mutexV (mutex->mutex) != 0)
-	{
-		TaskSwitch_SDL ();
-	}
+	log_add(log_Fatal, "UnlockMutex was called in single-threaded code. Exiting.");
+	exit(EXIT_FAILURE);
 }
 
 /* Semaphores. */
@@ -441,67 +384,24 @@ CreateSemaphore_SDL (DWORD initial
 #endif
 	)
 {
-	Sem *sem = (Sem *) HMalloc (sizeof (struct _sem));
-#ifdef NAMED_SYNCHRO
-	sem->name = name;
-	sem->syncClass = syncClass;
-#endif
-	sem->sem = SDL_CreateSemaphore (initial);
-	if (sem->sem == NULL)
-	{
-#ifdef NAMED_SYNCHRO
-		log_add (log_Fatal, "Could not initialize semaphore '%s':"
-				" aborting.", name);
-#else
-		log_add (log_Fatal, "Could not initialize semaphore:"
-				" aborting.");
-#endif
-		exit (EXIT_FAILURE);
-	}
-	return sem;
+	log_add(log_Warn, "Warning: attempt to create semaphore in single-threaded code.");
+	return NULL;
 }
 
-void
-DestroySemaphore_SDL (Semaphore s)
+void DestroySemaphore_SDL(Semaphore s)
 {
-	Sem *sem = (Sem *)s;
-	SDL_DestroySemaphore (sem->sem);
-	HFree (sem);
+	log_add(log_Warn, "Warning: attempt to destroy semaphore in single-threaded code.");
 }
 
-void
-SetSemaphore_SDL (Semaphore s)
+void SetSemaphore_SDL(Semaphore s)
 {
-	Sem *sem = (Sem *)s;
-#ifdef TRACK_CONTENTION
-	BOOLEAN contention = !(SDL_SemValue (sem->sem));
-	if (contention && (sem->syncClass & TRACK_CONTENTION_CLASSES))
-	{
-		log_add (log_Debug, "Thread '%s' blocking on semaphore '%s'",
-				MyThreadName (), sem->name);
-	}
-#endif
-	while (SDL_SemWait (sem->sem) == -1)
-	{
-		TaskSwitch_SDL ();
-	}
-#ifdef TRACK_CONTENTION
-	if (contention && (sem->syncClass & TRACK_CONTENTION_CLASSES))
-	{
-		log_add (log_Debug, "Thread '%s' awakens,"
-				" released from semaphore '%s'", MyThreadName (), sem->name);
-	}
-#endif
+	log_add(log_Warn, "Warning: attempt to set semaphore in single-threaded code.");
 }
 
 void
 ClearSemaphore_SDL (Semaphore s)
 {
-	Sem *sem = (Sem *)s;
-	while (SDL_SemPost (sem->sem) == -1)
-	{
-		TaskSwitch_SDL ();
-	}
+	log_add(log_Warn, "Warning: attempt to clear semaphore in single-threaded code.");
 }
 
 /* Recursive mutexes. Adapted from mixSDL code, which was adapted from
