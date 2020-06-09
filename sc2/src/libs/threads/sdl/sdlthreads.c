@@ -402,10 +402,17 @@ LockMutex_SDL (Mutex m)
 				MyThreadName (), mutex->name);
 	}
 #endif
-	while (SDL_mutexP (mutex->mutex) != 0)
+
+	// the thread will block if the mutex is not available, it only 
+	// returns != 0 if there is an error
+	int code = SDL_mutexP (mutex->mutex);
+	if (code != 0)
 	{
-		TaskSwitch_SDL ();
+		log_add(log_Fatal, "Attempt to lock mutex resulted in error: %d, %s\n", code, SDL_GetError());
+		exit(EXIT_FAILURE);
 	}
+
+
 #ifdef TRACK_CONTENTION
 	mutex->owner = SDL_ThreadID ();
 #endif
@@ -418,9 +425,11 @@ UnlockMutex_SDL (Mutex m)
 #ifdef TRACK_CONTENTION
 	mutex->owner = 0;
 #endif
-	while (SDL_mutexV (mutex->mutex) != 0)
+	// unlock never blocks, only returns -1 in case of error
+	if (SDL_mutexV (mutex->mutex) != 0)
 	{
-		TaskSwitch_SDL ();
+		fprintf(stderr, "Attempt to lock mutex resulted in error: %s\n", SDL_GetError());
+		exit(EXIT_FAILURE);
 	}
 }
 
