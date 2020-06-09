@@ -492,6 +492,8 @@ main (int argc, char *argv[])
 		mem_uninit ();
 	}
 
+	log_add(log_User, "=== UQM finalized");
+	
 	HFree (options.addons);
 	fclose(logFile);
 	
