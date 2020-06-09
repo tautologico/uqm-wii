@@ -145,11 +145,11 @@ LoadKernel (int argc, char *argv[])
 	{
 		COLORMAP ColorMapTab;
 
-		ColorMapTab = CaptureColorMap (LoadColorMap (STARCON_COLOR_MAP));
+		ColorMapTab = CaptureColorMap(LoadColorMap (STARCON_COLOR_MAP));
 		if (ColorMapTab == NULL)
 			return FALSE; // The most basic resource is missing
-		//SetColorMap (GetColorMapAddress (ColorMapTab));
-		DestroyColorMap (ReleaseColorMap (ColorMapTab));
+		SetColorMap(GetColorMapAddress(ColorMapTab));
+		DestroyColorMap(ReleaseColorMap(ColorMapTab));
 	}
 
 	InitPlayerInput();   // no-op

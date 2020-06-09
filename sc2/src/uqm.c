@@ -440,46 +440,42 @@ main (int argc, char *argv[])
 			(volatile int *)ImmediateInputState.key, NUM_TEMPLATES, NUM_KEYS);
 	TFB_InitInput(TFB_INPUTDRIVER_SDL, 0);
 
-	//StartThread(Starcon2Main, NULL, 1024, "Starcon2Main");
-
 	int result = Starcon2MainLoop();
-
-	//fclose(logFile);
-	//return EXIT_SUCCESS;
 
 	/* Currently, we use atexit() callbacks everywhere, so we
 	 *   cannot simply call unInitAudio() and the like, because other
 	 *   tasks might still be using it */
-	TFB_UninitInput ();
+	TFB_UninitInput();
 	//unInitAudio ();
-	uninit_communication ();
-		
-	//TFB_PurgeDanglingGraphics ();
-	// Purge above refers to colormaps which have to be still up
-	UninitColorMaps ();
-	TFB_UninitGraphics ();
+	uninit_communication();    // no-op
+
+	// Purge refers to colormaps which have to be still up	
+	// TODO convert DrawCommandQueue to not use locks/mutexes
+	//TFB_PurgeDanglingGraphics();
+	UninitColorMaps();
+	TFB_UninitGraphics();
 
 #ifdef NETPLAY
-	NetManager_uninit ();
-	Network_uninit ();
+	NetManager_uninit();
+	Network_uninit();
 #endif
 
-	Callback_uninit ();
-	Alarm_uninit ();
+	Callback_uninit();
+	Alarm_uninit();
 		
-	luaUqm_uninit ();
+	luaUqm_uninit();       // no-op
 
-	CleanupTaskSystem ();
-	UnInitTimeSystem ();
+	CleanupTaskSystem();
+	UnInitTimeSystem();    // no-op
 #if 0
 		unInitTempDir ();
 #endif
-	unprepareAllDirs ();
-	uninitIO ();
-	UnInitThreadSystem ();
-	mem_uninit ();
+	unprepareAllDirs();
+	uninitIO();
+	UnInitThreadSystem();
+	mem_uninit();
 
-	HFree (options.addons);
+	HFree(options.addons);
 	fclose(logFile);
 	
 	return result;

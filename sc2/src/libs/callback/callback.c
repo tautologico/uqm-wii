@@ -40,8 +40,10 @@ static CallbackLink *callbacks;
 static CallbackLink **callbacksEnd;
 static CallbackLink *const *callbacksProcessEnd;
 
-static Mutex callbackListLock;
+//static Mutex callbackListLock;
 
+// eliminating lock code from single-threaded code
+#if 0
 static inline void
 CallbackList_lock(void) {
 	LockMutex(callbackListLock);
@@ -51,6 +53,7 @@ static inline void
 CallbackList_unlock(void) {
 	UnlockMutex(callbackListLock);
 }
+#endif
 
 #if 0
 static inline bool
@@ -64,14 +67,15 @@ Callback_init(void) {
 	callbacks = NULL;
 	callbacksEnd = &callbacks;
 	callbacksProcessEnd = &callbacks;
-	callbackListLock = CreateMutex("Callback List Lock", SYNC_CLASS_TOPLEVEL);
+	//callbackListLock = CreateMutex("Callback List Lock", SYNC_CLASS_TOPLEVEL);
 }
 
+// no-op
 void
 Callback_uninit(void) {
 	// TODO: cleanup the queue?
-	DestroyMutex (callbackListLock);
-	callbackListLock = 0;
+	//DestroyMutex (callbackListLock);
+	//callbackListLock = 0;
 }
 
 // Callbacks are guaranteed to be called in the order that they are queued.
@@ -82,10 +86,10 @@ Callback_add(CallbackFunction callback, CallbackArg arg) {
 	link->arg = arg;
 	link->next = NULL;
 		
-	CallbackList_lock();
+	//CallbackList_lock();
 	*callbacksEnd = link;
 	callbacksEnd = &link->next;
-	CallbackList_unlock();
+	//CallbackList_unlock();
 	return (CallbackID) link;
 }
 
@@ -113,7 +117,7 @@ Callback_remove(CallbackID id) {
 	CallbackLink *link = (CallbackLink *) id;
 	CallbackLink **linkPtr;
 
-	CallbackList_lock();
+	//CallbackList_lock();
 
 	linkPtr = CallbackLink_find(link);
 	if (linkPtr == NULL) {
@@ -127,7 +131,7 @@ Callback_remove(CallbackID id) {
 		callbacksProcessEnd = linkPtr;
 	*linkPtr = (*linkPtr)->next;
 
-	CallbackList_unlock();
+	//CallbackList_unlock();
 
 	CallbackLink_delete(link);
 	return true;
@@ -155,14 +159,14 @@ Callback_process(void) {
 	// from inside a callback function will be placed after
 	// callbacksProcessEnd, and will hence not be processed this
 	// call of Callback_process().
-	CallbackList_lock();
+	//CallbackList_lock();
 	callbacksProcessEnd = callbacksEnd;
-	CallbackList_unlock();
+	//CallbackList_unlock();
 
 	for (;;) {
-		CallbackList_lock();
+		//CallbackList_lock();
 		if (callbacksProcessEnd == &callbacks) {
-			CallbackList_unlock();
+			//CallbackList_unlock();
 			break;
 		}
 		assert(callbacks != NULL);
@@ -173,7 +177,7 @@ Callback_process(void) {
 			callbacksEnd = &callbacks;
 		if (callbacksProcessEnd == &link->next)
 			callbacksProcessEnd = &callbacks;
-		CallbackList_unlock();
+		//CallbackList_unlock();
 
 		CallbackLink_doCallback(link);
 		CallbackLink_delete(link);
@@ -184,9 +188,9 @@ bool
 Callback_haveMore(void) {
 	bool result;
 
-	CallbackList_lock();
+	//CallbackList_lock();
 	result = (callbacks != NULL);
-	CallbackList_unlock();
+	//CallbackList_unlock();
 
 	return result;
 }

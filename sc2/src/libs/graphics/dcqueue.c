@@ -184,11 +184,11 @@ TFB_DrawCommandQueue_Push (TFB_DrawCommand* Command)
 int
 TFB_DrawCommandQueue_Pop (TFB_DrawCommand *target)
 {
-	LockRecursiveMutex (DCQ_Mutex);
+	//LockRecursiveMutex (DCQ_Mutex);
 
 	if (DrawCommandQueue.Size == 0)
 	{
-		Unlock_DCQ ();
+		//Unlock_DCQ ();
 		return (0);
 	}
 
@@ -207,7 +207,7 @@ TFB_DrawCommandQueue_Pop (TFB_DrawCommand *target)
 
 	DrawCommandQueue.Size--;
 	DrawCommandQueue.FullSize--;
-	UnlockRecursiveMutex (DCQ_Mutex);
+	//UnlockRecursiveMutex (DCQ_Mutex);
 
 	return 1;
 }
@@ -623,16 +623,15 @@ TFB_FlushGraphics (void)
 	BroadcastCondVar (RenderingCond);
 }
 
-void
-TFB_PurgeDanglingGraphics (void)
+void TFB_PurgeDanglingGraphics(void)
 {
-	Lock_DCQ (-1);
+	//Lock_DCQ (-1);
 
 	for (;;)
 	{
 		TFB_DrawCommand DC;
 
-		if (!TFB_DrawCommandQueue_Pop (&DC))
+		if (!TFB_DrawCommandQueue_Pop(&DC))
 		{
 			// the Queue is now empty.
 			break;
@@ -643,20 +642,20 @@ TFB_PurgeDanglingGraphics (void)
 			case TFB_DRAWCOMMANDTYPE_DELETEIMAGE:
 			{
 				TFB_Image *DC_image = DC.data.deleteimage.image;
-				TFB_DrawImage_Delete (DC_image);
+				TFB_DrawImage_Delete(DC_image);
 				break;
 			}
 			case TFB_DRAWCOMMANDTYPE_DELETEDATA:
 			{
 				void *data = DC.data.deletedata.data;
-				HFree (data);
+				HFree(data);
 				break;
 			}
 			case TFB_DRAWCOMMANDTYPE_IMAGE:
 			{
 				TFB_ColorMap *cmap = DC.data.image.colormap;
 				if (cmap)
-					TFB_ReturnColorMap (cmap);
+					TFB_ReturnColorMap(cmap);
 				break;
 			}
 			case TFB_DRAWCOMMANDTYPE_SENDSIGNAL:
@@ -666,5 +665,5 @@ TFB_PurgeDanglingGraphics (void)
 			}
 		}
 	}
-	Unlock_DCQ ();
+	// Unlock_DCQ();
 }

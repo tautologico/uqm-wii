@@ -43,14 +43,13 @@ static struct
 	XFORM_CONTROL TaskControl[MAX_XFORMS];
 	volatile int Highest;
 			// 'pending' is Highest >= 0
-	Mutex Lock;
+	//Mutex Lock;
 } XFormControl;
 
 static int fadeAmount = FADE_NORMAL_INTENSITY;
 static int fadeDelta;
 static TimeCount fadeStartTime;
 static sint32 fadeInterval;
-static Mutex fadeLock;
 
 #define SPARE_COLORMAPS  20
 
@@ -61,8 +60,6 @@ static int poolcount;
 
 static TFB_ColorMap * colormaps[MAX_COLORMAPS];
 static int mapcount;
-static Mutex maplock;
-
 
 static void release_colormap (TFB_ColorMap *map);
 static void delete_colormap (TFB_ColorMap *map);
@@ -73,16 +70,10 @@ InitColorMaps (void)
 {
 	int i;
 
-	// init colormaps
-	maplock = CreateMutex ("Colormaps Lock", SYNC_CLASS_TOPLEVEL | SYNC_CLASS_VIDEO);
-
 	// init xform control
 	XFormControl.Highest = -1;
-	XFormControl.Lock = CreateMutex ("Transform Lock", SYNC_CLASS_TOPLEVEL | SYNC_CLASS_VIDEO);
 	for (i = 0; i < MAX_XFORMS; ++i)
 		XFormControl.TaskControl[i].CMapIndex = -1;
-
-	fadeLock = CreateMutex ("Fade Lock", SYNC_CLASS_TOPLEVEL | SYNC_CLASS_VIDEO);
 }
 
 void
@@ -106,13 +97,6 @@ UninitColorMaps (void)
 		next = poolhead->next;
 		delete_colormap (poolhead);
 	}
-
-	DestroyMutex (fadeLock);
-	// uninit xform control
-	DestroyMutex (XFormControl.Lock);
-	
-	// uninit colormaps
-	DestroyMutex (maplock);
 }
 
 static inline TFB_ColorMap *
