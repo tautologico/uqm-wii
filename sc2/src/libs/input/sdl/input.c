@@ -247,29 +247,28 @@ initJoystick (void)
 
 #endif /* HAVE_JOYSTICK */
 
-int 
-TFB_InitInput (int driver, int flags)
+int TFB_InitInput(int driver, int flags)
 {
 	(void)driver;
 	(void)flags;
 
 	SDL_EnableUNICODE(1);
-	(void)SDL_GetKeyState (&num_keys);
+	(void)SDL_GetKeyState(&num_keys);
 	kbdstate = (int *)HMalloc (sizeof (int) * (num_keys + 1));
 
 #ifdef HAVE_JOYSTICK
-	initJoystick ();
+	initJoystick();
 #endif /* HAVE_JOYSTICK */
 
 	in_character_mode = FALSE;
-	resetKeyboardState ();
+	resetKeyboardState();
 
 	/* Prepare the Virtual Controller system. */
-	VControl_Init ();
+	VControl_Init();
 
-	initKeyConfig ();
+	initKeyConfig();
 	
-	VControl_ResetInput ();
+	VControl_ResetInput();
 	InputInitialized = TRUE;
 
 	return 0;
