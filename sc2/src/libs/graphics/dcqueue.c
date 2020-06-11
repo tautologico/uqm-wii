@@ -1,3 +1,4 @@
+
 /*
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -30,10 +31,7 @@
 
 static RecursiveMutex DCQ_Mutex;
 
-CondVar RenderingCond;
-
 TFB_DrawCommand DCQ[DCQ_MAX];
-
 TFB_DrawCommandQueue DrawCommandQueue;
 
 #define FPS_PERIOD  (ONE_SECOND / 100)
@@ -41,8 +39,7 @@ int RenderedFrames = 0;
 
 
 // Wait for the queue to be emptied.
-static void
-TFB_WaitForSpace (int requested_slots)
+static void TFB_WaitForSpace(int requested_slots)
 {
 	int old_depth, i;
 	log_add (log_Debug, "DCQ overload (Size = %d, FullSize = %d, "
@@ -55,32 +52,31 @@ TFB_WaitForSpace (int requested_slots)
 	old_depth = GetRecursiveMutexDepth (DCQ_Mutex);
 	for (i = 0; i < old_depth; i++)
 		UnlockRecursiveMutex (DCQ_Mutex);
-	WaitCondVar (RenderingCond);
+	//WaitCondVar (RenderingCond);
 	for (i = 0; i < old_depth; i++)
 		LockRecursiveMutex (DCQ_Mutex);
 	log_add (log_Debug, "DCQ clear (Size = %d, FullSize = %d).  Continuing.",
 			DrawCommandQueue.Size, DrawCommandQueue.FullSize);
 }
 
-void
-Lock_DCQ (int slots)
+void Lock_DCQ(int slots)
 {
-	LockRecursiveMutex (DCQ_Mutex);
-	while (DrawCommandQueue.FullSize >= DCQ_MAX - slots)
+	//LockRecursiveMutex (DCQ_Mutex);
+	if (DrawCommandQueue.FullSize >= DCQ_MAX - slots)
 	{
-		TFB_WaitForSpace (slots);
+		log_add(log_Fatal, "DrawCommand is full, aborting.");
+		exit(EXIT_FAILURE);
+		//TFB_WaitForSpace (slots);
 	}
 }
 
-void
-Unlock_DCQ (void)
+void Unlock_DCQ(void)
 {
-	UnlockRecursiveMutex (DCQ_Mutex);
+	//UnlockRecursiveMutex (DCQ_Mutex);
 }
 
 // Always have the DCQ locked when calling this.
-static void
-Synchronize_DCQ (void)
+static void Synchronize_DCQ(void)
 {
 	if (!DrawCommandQueue.Batching)
 	{
@@ -99,43 +95,39 @@ Synchronize_DCQ (void)
 	}
 }
 
-void
-TFB_BatchGraphics (void)
+void TFB_BatchGraphics(void)
 {
-	LockRecursiveMutex (DCQ_Mutex);
+	//LockRecursiveMutex (DCQ_Mutex);
 	DrawCommandQueue.Batching++;
-	UnlockRecursiveMutex (DCQ_Mutex);
+	//UnlockRecursiveMutex (DCQ_Mutex);
 }
 
-void
-TFB_UnbatchGraphics (void)
+void TFB_UnbatchGraphics(void)
 {	
-	LockRecursiveMutex (DCQ_Mutex);
+	//LockRecursiveMutex (DCQ_Mutex);
 	if (DrawCommandQueue.Batching)
 	{
 		DrawCommandQueue.Batching--;
 	}
 	Synchronize_DCQ ();
-	UnlockRecursiveMutex (DCQ_Mutex);
+	//UnlockRecursiveMutex (DCQ_Mutex);
 }
 
 // Cancel all pending batch operations, making them unbatched.  This will
 // cause a small amount of flicker when invoked, but prevents 
 // batching problems from freezing the game.
-void
-TFB_BatchReset (void)
+void TFB_BatchReset(void)
 {
-	LockRecursiveMutex (DCQ_Mutex);
+	//LockRecursiveMutex (DCQ_Mutex);
 	DrawCommandQueue.Batching = 0;
 	Synchronize_DCQ ();
-	UnlockRecursiveMutex (DCQ_Mutex);
+	//UnlockRecursiveMutex (DCQ_Mutex);
 }
 
 
 // Draw Command Queue Stuff
 
-void
-Init_DrawCommandQueue (void)
+void Init_DrawCommandQueue(void)
 {
 	DrawCommandQueue.Back = 0;
 	DrawCommandQueue.Front = 0;
@@ -146,22 +138,12 @@ Init_DrawCommandQueue (void)
 
 	TFB_BBox_Init (ScreenWidth, ScreenHeight);
 
-	DCQ_Mutex = CreateRecursiveMutex ("DCQ",
-			SYNC_CLASS_TOPLEVEL | SYNC_CLASS_VIDEO);
-
-	RenderingCond = CreateCondVar ("DCQ empty",
-			SYNC_CLASS_TOPLEVEL | SYNC_CLASS_VIDEO);
+	//DCQ_Mutex = CreateRecursiveMutex ("DCQ", SYNC_CLASS_TOPLEVEL | SYNC_CLASS_VIDEO);
+	DCQ_Mutex = 0;
 }
 
-void
-Uninit_DrawCommandQueue (void)
+void Uninit_DrawCommandQueue(void)
 {
-	if (RenderingCond)
-	{
-		DestroyCondVar (RenderingCond);
-		RenderingCond = 0;
-	}
-
 	if (DCQ_Mutex)
 	{
 		DestroyRecursiveMutex (DCQ_Mutex);
@@ -169,20 +151,17 @@ Uninit_DrawCommandQueue (void)
 	}
 }
 
-void
-TFB_DrawCommandQueue_Push (TFB_DrawCommand* Command)
+void TFB_DrawCommandQueue_Push(TFB_DrawCommand* Command)
 {
 	Lock_DCQ (1);
 	DCQ[DrawCommandQueue.InsertionPoint] = *Command;
-	DrawCommandQueue.InsertionPoint = (DrawCommandQueue.InsertionPoint + 1)
-			% DCQ_MAX;
+	DrawCommandQueue.InsertionPoint = (DrawCommandQueue.InsertionPoint + 1) % DCQ_MAX;
 	DrawCommandQueue.FullSize++;
 	Synchronize_DCQ ();
 	Unlock_DCQ ();
 }
 
-int
-TFB_DrawCommandQueue_Pop (TFB_DrawCommand *target)
+int TFB_DrawCommandQueue_Pop(TFB_DrawCommand *target)
 {
 	//LockRecursiveMutex (DCQ_Mutex);
 
@@ -193,7 +172,7 @@ TFB_DrawCommandQueue_Pop (TFB_DrawCommand *target)
 	}
 
 	if (DrawCommandQueue.Front == DrawCommandQueue.Back &&
-			DrawCommandQueue.Size != DCQ_MAX)
+		DrawCommandQueue.Size != DCQ_MAX)
 	{
 		log_add (log_Debug, "Augh!  Assertion failure in DCQ!  "
 				"Front == Back, Size != DCQ_MAX");
@@ -212,21 +191,19 @@ TFB_DrawCommandQueue_Pop (TFB_DrawCommand *target)
 	return 1;
 }
 
-void
-TFB_DrawCommandQueue_Clear ()
+void TFB_DrawCommandQueue_Clear()
 {
-	LockRecursiveMutex (DCQ_Mutex);
+	//LockRecursiveMutex (DCQ_Mutex);
 	DrawCommandQueue.Size = 0;
 	DrawCommandQueue.Front = 0;
 	DrawCommandQueue.Back = 0;
 	DrawCommandQueue.Batching = 0;
 	DrawCommandQueue.FullSize = 0;
 	DrawCommandQueue.InsertionPoint = 0;
-	UnlockRecursiveMutex (DCQ_Mutex);
+	//UnlockRecursiveMutex (DCQ_Mutex);
 }
 
-static void
-checkExclusiveThread (TFB_DrawCommand* DrawCommand)
+static void checkExclusiveThread(TFB_DrawCommand* DrawCommand)
 {
 #ifdef DEBUG_DCQ_THREADS
 	static uint32 exclusiveThreadId;
@@ -249,15 +226,14 @@ checkExclusiveThread (TFB_DrawCommand* DrawCommand)
 #endif
 }
 
-void
-TFB_EnqueueDrawCommand (TFB_DrawCommand* DrawCommand)
+void TFB_EnqueueDrawCommand(TFB_DrawCommand* DrawCommand)
 {
 	if (TFB_DEBUG_HALT)
 	{
 		return;
 	}
 
-	checkExclusiveThread (DrawCommand);
+	//checkExclusiveThread (DrawCommand);
 
 	if (DrawCommand->Type <= TFB_DRAWCOMMANDTYPE_COPYTOIMAGE
 			&& _CurFramePtr->Type == SCREEN_DRAWABLE)
@@ -266,7 +242,7 @@ TFB_EnqueueDrawCommand (TFB_DrawCommand* DrawCommand)
 
 		// Set the clipping region.
 		// We allow drawing with no current context set, so the whole screen
-		if ((_pCurContext && !rectsEqual (scissor_rect, _pCurContext->ClipRect))
+		if ((_pCurContext && !rectsEqual(scissor_rect, _pCurContext->ClipRect))
 				|| (!_pCurContext && scissor_rect.extent.width != 0))
 		{
 			// Enqueue command to set the glScissor spec
@@ -291,11 +267,10 @@ TFB_EnqueueDrawCommand (TFB_DrawCommand* DrawCommand)
 		}
 	}
 
-	TFB_DrawCommandQueue_Push (DrawCommand);
+	TFB_DrawCommandQueue_Push(DrawCommand);
 }
 
-static void
-computeFPS (void)
+static void computeFPS(void)
 {
 	static TimeCount last_time;
 	static TimePeriod fps_counter;
@@ -319,19 +294,16 @@ computeFPS (void)
 }
 
 // Only call from main() thread!!
-void
-TFB_FlushGraphics (void)
+void TFB_FlushGraphics(void)
 {
 	int commands_handled;
 	BOOLEAN livelock_deterrence;
 
-	// This is technically a locking violation on DrawCommandQueue.Size,
-	// but it is likely to not be very destructive.
 	if (DrawCommandQueue.Size == 0)
 	{
 		static int last_fade = 255;
 		static int last_transition = 255;
-		int current_fade = GetFadeAmount ();
+		int current_fade = GetFadeAmount();
 		int current_transition = TransitionAmount;
 		
 		if ((current_fade != 255 && current_fade != last_fade) ||
@@ -345,12 +317,13 @@ TFB_FlushGraphics (void)
 		}
 		else
 		{
-			TaskSwitch ();
+
+			//TaskSwitch ();
 		}
 		
 		last_fade = current_fade;
 		last_transition = current_transition;
-		BroadcastCondVar (RenderingCond);
+		//BroadcastCondVar (RenderingCond);
 		return;
 	}
 
@@ -367,7 +340,7 @@ TFB_FlushGraphics (void)
 
 	if (DrawCommandQueue.Size > DCQ_FORCE_SLOWDOWN_SIZE)
 	{
-		Lock_DCQ (-1);
+		//Lock_DCQ (-1);
 		livelock_deterrence = TRUE;
 	}
 
@@ -377,7 +350,7 @@ TFB_FlushGraphics (void)
 	{
 		TFB_DrawCommand DC;
 
-		if (!TFB_DrawCommandQueue_Pop (&DC))
+		if (!TFB_DrawCommandQueue_Pop(&DC))
 		{
 			// the Queue is now empty.
 			break;
@@ -390,7 +363,7 @@ TFB_FlushGraphics (void)
 			// log_add (log_Debug, "Initiating livelock deterrence!");
 			livelock_deterrence = TRUE;
 			
-			Lock_DCQ (-1);
+			//Lock_DCQ (-1);
 		}
 
 		switch (DC.Type)
@@ -410,14 +383,14 @@ TFB_FlushGraphics (void)
 				const int x = cmd->x;
 				const int y = cmd->y;
 
-				TFB_DrawCanvas_Image (DC_image, x, y,
+				TFB_DrawCanvas_Image(DC_image, x, y,
 						cmd->scale, cmd->scaleMode, cmd->colormap,
 						cmd->drawMode,
 						TFB_GetScreenCanvas (cmd->destBuffer));
 
 				if (cmd->destBuffer == TFB_SCREEN_MAIN)
 				{
-					LockMutex (DC_image->mutex);
+					//LockMutex (DC_image->mutex);
 					if (cmd->scale)
 						TFB_BBox_RegisterCanvas (DC_image->ScaledImg,
 								x - DC_image->last_scale_hs.x,
@@ -426,7 +399,7 @@ TFB_FlushGraphics (void)
 						TFB_BBox_RegisterCanvas (DC_image->NormalImg,
 								x - DC_image->NormalHs.x,
 								y - DC_image->NormalHs.y);
-					UnlockMutex (DC_image->mutex);
+					//UnlockMutex (DC_image->mutex);
 				}
 
 				break;
@@ -446,7 +419,7 @@ TFB_FlushGraphics (void)
 
 				if (cmd->destBuffer == TFB_SCREEN_MAIN)
 				{
-					LockMutex (DC_image->mutex);
+					//LockMutex (DC_image->mutex);
 					if (cmd->scale)
 						TFB_BBox_RegisterCanvas (DC_image->ScaledImg,
 								x - DC_image->last_scale_hs.x,
@@ -455,7 +428,7 @@ TFB_FlushGraphics (void)
 						TFB_BBox_RegisterCanvas (DC_image->NormalImg,
 								x - DC_image->NormalHs.x,
 								y - DC_image->NormalHs.y);
-					UnlockMutex (DC_image->mutex);
+					//UnlockMutex (DC_image->mutex);
 				}
 
 				break;
@@ -541,11 +514,11 @@ TFB_FlushGraphics (void)
 							"image ptr");
 					break;
 				}
-				LockMutex (DC_image->mutex);
+				//LockMutex (DC_image->mutex);
 				TFB_DrawCanvas_CopyRect (
 						TFB_GetScreenCanvas (cmd->srcBuffer), &cmd->rect,
 						DC_image->NormalImg, dstPt);
-				UnlockMutex (DC_image->mutex);
+				//UnlockMutex (DC_image->mutex);
 				break;
 			}
 			
@@ -578,7 +551,7 @@ TFB_FlushGraphics (void)
 			}
 			
 			case TFB_DRAWCOMMANDTYPE_SENDSIGNAL:
-				ClearSemaphore (DC.data.sendsignal.sem);
+				//ClearSemaphore (DC.data.sendsignal.sem);
 				break;
 			
 			case TFB_DRAWCOMMANDTYPE_REINITVIDEO:
@@ -620,7 +593,6 @@ TFB_FlushGraphics (void)
 
 	TFB_SwapBuffers (TFB_REDRAW_NO);
 	RenderedFrames++;
-	BroadcastCondVar (RenderingCond);
 }
 
 void TFB_PurgeDanglingGraphics(void)
@@ -660,7 +632,7 @@ void TFB_PurgeDanglingGraphics(void)
 			}
 			case TFB_DRAWCOMMANDTYPE_SENDSIGNAL:
 			{
-				ClearSemaphore (DC.data.sendsignal.sem);
+				//ClearSemaphore (DC.data.sendsignal.sem);
 				break;
 			}
 		}

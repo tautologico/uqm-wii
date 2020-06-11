@@ -91,33 +91,20 @@ on_battle_frame (void)
 	DrawAutoPilotMessage (FALSE);
 }
 
-static void
-BackgroundInitKernel (DWORD TimeOut)
+static void BackgroundInitKernel(DWORD TimeOut)
 {
-	LoadMasterShipList (TaskSwitch);
-	TaskSwitch ();
-	InitGameKernel ();
+	LoadMasterShipList(TaskSwitch);
+	//TaskSwitch();
+	InitGameKernel();
 
-	while ((GetTimeCounter () <= TimeOut) &&
-	       !(GLOBAL (CurrentActivity) & CHECK_ABORT))
+	if (!(GLOBAL(CurrentActivity) & CHECK_ABORT))
 	{
-		UpdateInputState ();
-		TaskSwitch ();
+		UpdateInputState();
 	}
 }
 
 // Executes on the main() thread
-void
-SignalStopMainThread (void)
-{
-	GamePaused = FALSE;
-	GLOBAL (CurrentActivity) |= CHECK_ABORT;
-	TaskSwitch ();
-}
-
-// Executes on the main() thread
-void
-ProcessUtilityKeys (void)
+void ProcessUtilityKeys(void)
 {
 	if (ImmediateInputState.menu[KEY_ABORT])
 	{
@@ -170,6 +157,21 @@ int Starcon2MainLoop(void)
 		return EXIT_FAILURE;
 	}
 	log_add (log_Info, "We've loaded the Kernel");
+
+	GLOBAL (CurrentActivity) = 0;
+	luaUqm_initState ();
+
+	// show splash and init the kernel in the meantime
+	SplashScreen(BackgroundInitKernel);
+
+	// MAIN LOOP
+	//TFB_FlushGraphics();
+
+	luaUqm_uninitState ();
+
+	UninitGameKernel ();
+	FreeMasterShipList ();
+	FreeKernel ();
 
 	return EXIT_SUCCESS;
 }

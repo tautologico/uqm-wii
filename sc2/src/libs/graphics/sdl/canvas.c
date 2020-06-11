@@ -136,9 +136,8 @@ TFB_DrawCanvas_Rect (RECT *rect, Color color, DrawMode mode, TFB_Canvas target)
 	}
 }
 
-static void
-TFB_DrawCanvas_Blit (SDL_Surface *src, SDL_Rect *src_r,
-		SDL_Surface *dst, SDL_Rect *dst_r, DrawMode mode)
+static void TFB_DrawCanvas_Blit(SDL_Surface *src, SDL_Rect *src_r,
+		                        SDL_Surface *dst, SDL_Rect *dst_r, DrawMode mode)
 {
 	SDL_PixelFormat *srcfmt = src->format;
 
@@ -193,9 +192,9 @@ TFB_DrawCanvas_Blit (SDL_Surface *src, SDL_Rect *src_r,
 
 // XXX: If a colormap is passed in, it has to have been acquired via
 // TFB_GetColorMap(). We release the colormap at the end.
-void
-TFB_DrawCanvas_Image (TFB_Image *img, int x, int y, int scale,
-		int scaleMode, TFB_ColorMap *cmap, DrawMode mode, TFB_Canvas target)
+void TFB_DrawCanvas_Image(TFB_Image *img, int x, int y, int scale,
+		                  int scaleMode, TFB_ColorMap *cmap, DrawMode mode, 
+						  TFB_Canvas target)
 {
 	SDL_Rect srcRect, targetRect, *pSrcRect;
 	SDL_Surface *surf;
@@ -208,7 +207,7 @@ TFB_DrawCanvas_Image (TFB_Image *img, int x, int y, int scale,
 		return;
 	}
 
-	LockMutex (img->mutex);
+	//LockMutex (img->mutex);
 
 	NormalPal = ((SDL_Surface *)img->NormalImg)->format->palette;
 	// only set the new palette if it changed
@@ -266,8 +265,8 @@ TFB_DrawCanvas_Image (TFB_Image *img, int x, int y, int scale,
 		TFB_ReturnColorMap (cmap);
 	}
 	
-	TFB_DrawCanvas_Blit (surf, pSrcRect, target, &targetRect, mode);
-	UnlockMutex (img->mutex);
+	TFB_DrawCanvas_Blit(surf, pSrcRect, target, &targetRect, mode);
+	//UnlockMutex (img->mutex);
 }
 
 // Assumes the source and destination surfaces are in the same format
@@ -389,7 +388,7 @@ TFB_DrawCanvas_FilledImage (TFB_Image *img, int x, int y, int scale,
 
 	checkPrimitiveMode (dst, &color, &mode);
 
-	LockMutex (img->mutex);
+	//LockMutex (img->mutex);
 
 	if (scale != 0 && scale != GSCALE_IDENTITY)
 	{
@@ -499,7 +498,7 @@ TFB_DrawCanvas_FilledImage (TFB_Image *img, int x, int y, int scale,
 	}
 
 	TFB_DrawCanvas_Blit (surf, pSrcRect, dst, &targetRect, mode);
-	UnlockMutex (img->mutex);
+	//UnlockMutex (img->mutex);
 }
 
 void
@@ -527,7 +526,7 @@ TFB_DrawCanvas_FontChar (TFB_Char *fontChar, TFB_Image *backing,
 	w = fontChar->extent.width;
 	h = fontChar->extent.height;
 
-	LockMutex (backing->mutex);
+	//LockMutex (backing->mutex);
 
 	surf = backing->NormalImg;
 	if (surf->format->BytesPerPixel != 4
@@ -537,7 +536,7 @@ TFB_DrawCanvas_FontChar (TFB_Char *fontChar, TFB_Image *backing,
 				"TFB_DrawCanvas_FontChar bad backing surface: %dx%dx%d; "
 				"char: %dx%d",
 				surf->w, surf->h, (int)surf->format->BytesPerPixel, w, h);
-		UnlockMutex (backing->mutex);
+		//UnlockMutex (backing->mutex);
 		return;
 	}
 
@@ -600,7 +599,7 @@ TFB_DrawCanvas_FontChar (TFB_Char *fontChar, TFB_Image *backing,
 	SDL_UnlockSurface (surf);
 
 	TFB_DrawCanvas_Blit (surf, &srcRect, dst, &targetRect, mode);
-	UnlockMutex (backing->mutex);
+	//UnlockMutex (backing->mutex);
 }
 
 TFB_Canvas

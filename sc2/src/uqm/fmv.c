@@ -72,28 +72,31 @@ DoShipSpin (COUNT index, MUSIC_REF hMusic)
 #endif  /* WANT_SHIP_SPINS */
 }
 
-void
-SplashScreen (void (* DoProcessing)(DWORD TimeOut))
+void SplashScreen(void (* DoProcessing)(DWORD TimeOut))
 {
 	STAMP s;
 	DWORD TimeOut;
 
-	SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 120));
-	SetContext (ScreenContext);
+	// remove fade for now
+	// SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 120));
+	SetContext(ScreenContext);
 	s.origin.x = s.origin.y = 0;
-	s.frame = CaptureDrawable (LoadGraphic (TITLE_ANIM));
-	DrawStamp (&s);
-	DestroyDrawable (ReleaseDrawable (s.frame));
+	s.frame = CaptureDrawable(LoadGraphic(TITLE_ANIM));
+	DrawStamp(&s);
+	DestroyDrawable(ReleaseDrawable(s.frame));
 
-	TimeOut = FadeScreen (FadeAllToColor, ONE_SECOND / 2);
+	TimeOut = FadeScreen(FadeAllToColor, ONE_SECOND / 2);
+
+	// flush graphics to actually show the splash screen 
+	TFB_FlushGraphics();
 
 	if (DoProcessing)
-		DoProcessing (TimeOut);
-	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
+		DoProcessing(TimeOut);
+	if (GLOBAL(CurrentActivity) & CHECK_ABORT)
 	{
 		return;
 	}
-	
+		
 	/* There was a forcible setting of CHECK_ABORT here.  I cannot
 	 * find any purpose for this that DoRestart doesn't handle
 	 * better (forcing all other threads but this one to quit out,
@@ -101,14 +104,14 @@ SplashScreen (void (* DoProcessing)(DWORD TimeOut))
 	 * with the proper operation of the quit operation.
 	 * --Michael */
 
-	WaitForAnyButton (FALSE, ONE_SECOND * 3, TRUE);
-	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
+	WaitForAnyButton(FALSE, ONE_SECOND * 3, TRUE);
+	if (GLOBAL(CurrentActivity) & CHECK_ABORT)
 	{
 		return;
 	}
 	GLOBAL (CurrentActivity) &= ~CHECK_ABORT;
 
-	SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
+	//SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 2));
 }
 
 void

@@ -238,51 +238,51 @@ void
 TFB_DrawImage_Line (int x1, int y1, int x2, int y2, Color color,
 		DrawMode mode, TFB_Image *target)
 {
-	LockMutex (target->mutex);
+	//LockMutex (target->mutex);
 	TFB_DrawCanvas_Line (x1, y1, x2, y2, color, mode, target->NormalImg);
 	target->dirty = TRUE;
-	UnlockMutex (target->mutex);
+	//UnlockMutex (target->mutex);
 }
 
 void
 TFB_DrawImage_Rect (RECT *rect, Color color, DrawMode mode, TFB_Image *target)
 {
-	LockMutex (target->mutex);
+	//LockMutex (target->mutex);
 	TFB_DrawCanvas_Rect (rect, color, mode, target->NormalImg);
 	target->dirty = TRUE;
-	UnlockMutex (target->mutex);
+	//UnlockMutex (target->mutex);
 }
 
 void
 TFB_DrawImage_Image (TFB_Image *img, int x, int y, int scale,
 		int scaleMode, TFB_ColorMap *cmap, DrawMode mode, TFB_Image *target)
 {
-	LockMutex (target->mutex);
+	//LockMutex (target->mutex);
 	TFB_DrawCanvas_Image (img, x, y, scale, scaleMode, cmap,
 			mode, target->NormalImg);
 	target->dirty = TRUE;
-	UnlockMutex (target->mutex);
+	//UnlockMutex (target->mutex);
 }
 
 void
 TFB_DrawImage_FilledImage (TFB_Image *img, int x, int y, int scale,
 		int scaleMode, Color color, DrawMode mode, TFB_Image *target)
 {
-	LockMutex (target->mutex);
+	//LockMutex (target->mutex);
 	TFB_DrawCanvas_FilledImage (img, x, y, scale, scaleMode, color,
 			mode, target->NormalImg);
 	target->dirty = TRUE;
-	UnlockMutex (target->mutex);
+	//UnlockMutex (target->mutex);
 }
 
 void
 TFB_DrawImage_FontChar (TFB_Char *fontChar, TFB_Image *backing,
 		int x, int y, DrawMode mode, TFB_Image *target)
 {
-	LockMutex (target->mutex);
+	//LockMutex (target->mutex);
 	TFB_DrawCanvas_FontChar (fontChar, backing, x, y, mode, target->NormalImg);
 	target->dirty = TRUE;
-	UnlockMutex (target->mutex);
+	//UnlockMutex (target->mutex);
 }
 
 
@@ -377,8 +377,8 @@ TFB_DrawImage_SetMipmap (TFB_Image *img, TFB_Image *mmimg, int hotx, int hoty)
 	if (!img || !mmimg)
 		return;
 
-	LockMutex (img->mutex);
-	LockMutex (mmimg->mutex);
+	//LockMutex (img->mutex);
+	//LockMutex (mmimg->mutex);
 	
 	// Either both images must be using the same colormap, or mipmap image
 	// must not be paletted. This restriction is due to the current
@@ -398,8 +398,8 @@ TFB_DrawImage_SetMipmap (TFB_Image *img, TFB_Image *mmimg, int hotx, int hoty)
 		img->MipmapImg = NULL;
 	}
 
-	UnlockMutex (mmimg->mutex);
-	UnlockMutex (img->mutex);
+	//UnlockMutex (mmimg->mutex);
+	//UnlockMutex (img->mutex);
 }
 
 void 
@@ -411,7 +411,7 @@ TFB_DrawImage_Delete (TFB_Image *image)
 		/* Should we die here? */
 		return;
 	}
-	LockMutex (image->mutex);
+	//LockMutex (image->mutex);
 
 	TFB_DrawCanvas_Delete (image->NormalImg);
 			
@@ -427,7 +427,7 @@ TFB_DrawImage_Delete (TFB_Image *image)
 		image->FilledImg = 0;
 	}
 
-	UnlockMutex (image->mutex);
+	//UnlockMutex (image->mutex);
 	DestroyMutex (image->mutex);
 			
 	HFree (image);
@@ -469,12 +469,12 @@ TFB_DrawImage_Intersect (TFB_Image *img1, POINT img1org,
 {
 	BOOLEAN ret;
 
-	LockMutex (img1->mutex);
-	LockMutex (img2->mutex);
+	//LockMutex (img1->mutex);
+	//LockMutex (img2->mutex);
 	ret = TFB_DrawCanvas_Intersect (img1->NormalImg, img1org,
 			img2->NormalImg, img2org, interRect);
-	UnlockMutex (img2->mutex);
-	UnlockMutex (img1->mutex);
+	//UnlockMutex (img2->mutex);
+	//UnlockMutex (img1->mutex);
 
 	return ret;
 }
@@ -483,11 +483,11 @@ void
 TFB_DrawImage_CopyRect (TFB_Image *source, const RECT *srcRect,
 		TFB_Image *target, POINT dstPt)
 {
-	LockMutex (source->mutex);
-	LockMutex (target->mutex);
+	//LockMutex (source->mutex);
+	//LockMutex (target->mutex);
 	TFB_DrawCanvas_CopyRect (source->NormalImg, srcRect,
 			target->NormalImg, dstPt);
 	target->dirty = TRUE;
-	UnlockMutex (target->mutex);
-	UnlockMutex (source->mutex);
+	//UnlockMutex (target->mutex);
+	//UnlockMutex (source->mutex);
 }

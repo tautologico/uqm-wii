@@ -343,20 +343,38 @@ CreateMutex_SDL (const char *name, DWORD syncClass)
 CreateMutex_SDL (void)
 #endif
 {
-	log_add(log_Warn, "Warning: attempt to create mutex in single-threaded code.");
-	return NULL;
+	log_add(log_Warning, "Warning: attempt to create mutex in single-threaded code.");
+
+	Mut *mutex = malloc(sizeof(Mut));
+
+	if (mutex != NULL) {
+#ifdef NAMED_SYNCHRO
+		mutex->name = name;
+		mutex->syncClass = syncClass;
+#endif	
+	}
+	return mutex;
 }
 
 void
 DestroyMutex_SDL (Mutex m)
 {
-	log_add(log_Warn, "Warning: attempt to destroy mutex in single-threaded code.");
+	log_add(log_Warning, "Warning: attempt to destroy mutex in single-threaded code.");
 }
 
 void
 LockMutex_SDL (Mutex m)
 {
+	Mut *mutex = (Mut *)m;
+
+#ifdef NAMED_SYNCHRO
+	if (m != NULL)
+        log_add(log_Fatal, "LockMutex was called in single-threaded code. Mutex: %s. Exiting.", mutex->name);
+	else
+	    log_add(log_Fatal, "LockMutex was called in single-threaded code. Null mutex. Exiting.");
+#else
 	log_add(log_Fatal, "LockMutex was called in single-threaded code. Exiting.");
+#endif
 	exit(EXIT_FAILURE);
 }
 
@@ -384,24 +402,24 @@ CreateSemaphore_SDL (DWORD initial
 #endif
 	)
 {
-	log_add(log_Warn, "Warning: attempt to create semaphore in single-threaded code.");
+	log_add(log_Warning, "Warning: attempt to create semaphore in single-threaded code.");
 	return NULL;
 }
 
 void DestroySemaphore_SDL(Semaphore s)
 {
-	log_add(log_Warn, "Warning: attempt to destroy semaphore in single-threaded code.");
+	log_add(log_Warning, "Warning: attempt to destroy semaphore in single-threaded code.");
 }
 
 void SetSemaphore_SDL(Semaphore s)
 {
-	log_add(log_Warn, "Warning: attempt to set semaphore in single-threaded code.");
+	log_add(log_Warning, "Warning: attempt to set semaphore in single-threaded code.");
 }
 
 void
 ClearSemaphore_SDL (Semaphore s)
 {
-	log_add(log_Warn, "Warning: attempt to clear semaphore in single-threaded code.");
+	log_add(log_Warning, "Warning: attempt to clear semaphore in single-threaded code.");
 }
 
 /* Recursive mutexes. Adapted from mixSDL code, which was adapted from

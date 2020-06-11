@@ -163,27 +163,27 @@ InitContexts (void)
 {
 	RECT r;
 	
-	StatusContext = CreateContext ("StatusContext");
+	StatusContext = CreateContext("StatusContext");
 	if (StatusContext == NULL)
 		return FALSE;
 
-	SetContext (StatusContext);
-	SetContextFGFrame (Screen);
+	SetContext(StatusContext);
+	SetContextFGFrame(Screen);
 	r.corner.x = SPACE_WIDTH + SAFE_X;
 	r.corner.y = SAFE_Y;
 	r.extent.width = STATUS_WIDTH;
 	r.extent.height = STATUS_HEIGHT;
-	SetContextClipRect (&r);
+	SetContextClipRect(&r);
 	
-	SpaceContext = CreateContext ("SpaceContext");
+	SpaceContext = CreateContext("SpaceContext");
 	if (SpaceContext == NULL)
 		return FALSE;
 		
-	OffScreenContext = CreateContext ("OffScreenContext");
+	OffScreenContext = CreateContext("OffScreenContext");
 	if (OffScreenContext == NULL)
 		return FALSE;
 
-	if (!InitQueue (&disp_q, MAX_DISPLAY_ELEMENTS, sizeof (ELEMENT)))
+	if (!InitQueue(&disp_q, MAX_DISPLAY_ELEMENTS, sizeof (ELEMENT)))
 		return FALSE;
 
 	return TRUE;
@@ -195,49 +195,49 @@ InitKernel (void)
 	COUNT counter;
 
 	for (counter = 0; counter < NUM_PLAYERS; ++counter)
-		InitQueue (&race_q[counter], MAX_SHIPS_PER_SIDE, sizeof (STARSHIP));
+		InitQueue(&race_q[counter], MAX_SHIPS_PER_SIDE, sizeof (STARSHIP));
 
-	StarConFont = LoadFont (STARCON_FONT);
+	StarConFont = LoadFont(STARCON_FONT);
 	if (StarConFont == NULL)
 		return FALSE;
 
-	TinyFont = LoadFont (TINY_FONT);
+	TinyFont = LoadFont(TINY_FONT);
 	if (TinyFont == NULL)
 		return FALSE;
 
-	ActivityFrame = CaptureDrawable (LoadGraphic (ACTIVITY_ANIM));
+	ActivityFrame = CaptureDrawable(LoadGraphic (ACTIVITY_ANIM));
 	if (ActivityFrame == NULL)
 		return FALSE;
 
-	StatusFrame = CaptureDrawable (LoadGraphic (STATUS_MASK_PMAP_ANIM));
+	StatusFrame = CaptureDrawable(LoadGraphic (STATUS_MASK_PMAP_ANIM));
 	if (StatusFrame == NULL)
 		return FALSE;
 
-	GameStrings = CaptureStringTable (LoadStringTable (STARCON_GAME_STRINGS));
+	GameStrings = CaptureStringTable(LoadStringTable (STARCON_GAME_STRINGS));
 	if (GameStrings == 0)
 		return FALSE;
 
-	MicroFont = LoadFont (MICRO_FONT);
+	MicroFont = LoadFont(MICRO_FONT);
 	if (MicroFont == NULL)
 		return FALSE;
 
-	MenuSounds = CaptureSound (LoadSound (MENU_SOUNDS));
+	MenuSounds = CaptureSound(LoadSound(MENU_SOUNDS));
 	if (MenuSounds == 0)
 		return FALSE;
 
-	InitStatusOffsets ();
-	InitSpace ();
+	InitStatusOffsets();
+	InitSpace();
 
 	return TRUE;
 }
 
 BOOLEAN
-InitGameKernel (void)
+InitGameKernel(void)
 {
 	if (ActivityFrame == 0)
 	{
-		InitKernel ();
-		InitContexts ();
+		InitKernel();
+		InitContexts();
 	}
 	return TRUE;
 }

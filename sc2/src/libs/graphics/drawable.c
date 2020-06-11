@@ -298,12 +298,12 @@ SetFrameTransparentColor (FRAME frame, Color color)
 	assert (frame->Type != SCREEN_DRAWABLE);
 
 	img = frame->image;
-	LockMutex (img->mutex);
+	//LockMutex (img->mutex);
 
 	// TODO: This should defer to TFB_DrawImage instead
 	TFB_DrawCanvas_SetTransparentColor (img->NormalImg, color, FALSE);
 	
-	UnlockMutex (img->mutex);
+	//UnlockMutex (img->mutex);
 }
 
 Color
@@ -318,12 +318,12 @@ GetFramePixel (FRAME frame, POINT pixelPt)
 	assert (frame->Type != SCREEN_DRAWABLE);
 
 	img = frame->image;
-	LockMutex (img->mutex);
+	//LockMutex (img->mutex);
 
 	// TODO: This should defer to TFB_DrawImage instead
 	ret = TFB_DrawCanvas_GetPixel (img->NormalImg, pixelPt.x, pixelPt.y);
 
-	UnlockMutex (img->mutex);
+	//UnlockMutex (img->mutex);
 
 	return ret;
 }
@@ -422,14 +422,14 @@ RescaleFrame (FRAME frame, int width, int height)
 	newFrame->HotSpot.y = frame->HotSpot.y * height / frame->Bounds.height;
 
 	img = frame->image;
-	LockMutex (img->mutex);
+	//LockMutex (img->mutex);
 	// NOTE: We do not lock the target image because nothing has a
 	//   reference to it yet!
 	src = img->NormalImg;
 	dst = newFrame->image->NormalImg;
 	TFB_DrawCanvas_Rescale_Nearest (src, dst, -1, NULL, NULL, NULL);
 	
-	UnlockMutex (img->mutex);
+	//UnlockMutex (img->mutex);
 
 	return ReleaseDrawable (newFrame);
 }

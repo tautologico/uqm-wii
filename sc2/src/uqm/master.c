@@ -26,8 +26,7 @@
 
 QUEUE master_q;
 
-void
-LoadMasterShipList (void (* YieldProcessing)(void))
+void LoadMasterShipList(void (* YieldProcessing)(void))
 {
 	COUNT num_entries;
 	SPECIES_ID s_id = ARILOU_ID;
@@ -47,15 +46,15 @@ LoadMasterShipList (void (* YieldProcessing)(void))
 
 		// Allow other things to run
 		//  supposedly, loading ship packages and data takes some time
-		if (YieldProcessing)
-			YieldProcessing ();
+		//if (YieldProcessing)
+		//	YieldProcessing ();
 
-		BuiltPtr = LockMasterShip (&master_q, hBuiltShip);
+		BuiltPtr = LockMasterShip(&master_q, hBuiltShip);
 		BuiltPtr->SpeciesID = s_id++;
-		RDPtr = load_ship (BuiltPtr->SpeciesID, FALSE);
+		RDPtr = load_ship(BuiltPtr->SpeciesID, FALSE);
 		if (!RDPtr)
 		{
-			UnlockMasterShip (&master_q, hBuiltShip);
+			UnlockMasterShip(&master_q, hBuiltShip);
 			continue;
 		}
 
@@ -65,9 +64,9 @@ LoadMasterShipList (void (* YieldProcessing)(void))
 		BuiltPtr->Fleet = RDPtr->fleet;
 		free_ship (RDPtr, FALSE, FALSE);
 
-		builtName = GetStringAddress (SetAbsStringTableIndex (
+		builtName = GetStringAddress(SetAbsStringTableIndex (
 				BuiltPtr->ShipInfo.race_strings, 2));
-		UnlockMasterShip (&master_q, hBuiltShip);
+		UnlockMasterShip(&master_q, hBuiltShip);
 
 		// Insert the ship in the master queue in the right location
 		// to keep the list sorted on the name of the race.
@@ -77,21 +76,19 @@ LoadMasterShipList (void (* YieldProcessing)(void))
 			char *curName;
 			MASTER_SHIP_INFO *MasterPtr;
 
-			MasterPtr = LockMasterShip (&master_q, hStarShip);
-			hNextShip = _GetSuccLink (MasterPtr);
-			curName = GetStringAddress (SetAbsStringTableIndex (
-					MasterPtr->ShipInfo.race_strings, 2));
-			UnlockMasterShip (&master_q, hStarShip);
+			MasterPtr = LockMasterShip(&master_q, hStarShip);
+			hNextShip = _GetSuccLink(MasterPtr);
+			curName = GetStringAddress(SetAbsStringTableIndex(MasterPtr->ShipInfo.race_strings, 2));
+			UnlockMasterShip(&master_q, hStarShip);
 
-			if (strcmp (builtName, curName) < 0)
+			if (strcmp(builtName, curName) < 0)
 				break;
 		}
-		InsertQueue (&master_q, hBuiltShip, hStarShip);
+		InsertQueue(&master_q, hBuiltShip, hStarShip);
 	}
 }
 
-void
-FreeMasterShipList (void)
+void FreeMasterShipList(void)
 {
 	HMASTERSHIP hStarShip, hNextShip;
 

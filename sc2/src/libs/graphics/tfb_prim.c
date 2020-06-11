@@ -142,7 +142,7 @@ TFB_Prim_Stamp (STAMP *stmp, DrawMode mode, POINT ctxOrigin)
 		return;
 	}
 
-	LockMutex (img->mutex);
+	//LockMutex (img->mutex);
 
 	img->NormalHs = SrcFramePtr->HotSpot;
 	// We scale the image size here, but the caller must scale the origin!
@@ -155,7 +155,7 @@ TFB_Prim_Stamp (STAMP *stmp, DrawMode mode, POINT ctxOrigin)
 		cmap = TFB_GetColorMap (img->colormap_index);
 	}
 
-	UnlockMutex (img->mutex);
+	//UnlockMutex (img->mutex);
 
 	if (_CurFramePtr->Type == SCREEN_DRAWABLE)
 	{
@@ -191,14 +191,14 @@ TFB_Prim_StampFill (STAMP *stmp, Color color, DrawMode mode, POINT ctxOrigin)
 		return;
 	}
 
-	LockMutex (img->mutex);
+	//LockMutex (img->mutex);
 
 	img->NormalHs = SrcFramePtr->HotSpot;
 	// We scale the image size here, but the caller must scale the origin!
 	x = stmp->origin.x + ctxOrigin.x;
 	y = stmp->origin.y + ctxOrigin.y;
 
-	UnlockMutex (img->mutex);
+	//UnlockMutex (img->mutex);
 
 	if (_CurFramePtr->Type == SCREEN_DRAWABLE)
 	{
