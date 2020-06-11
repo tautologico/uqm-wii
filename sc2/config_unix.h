@@ -61,6 +61,9 @@
 /* using tremor for oggvorbis */
 #define OVCODEC_TREMOR
 
+/* signal that we have joystick */
+#define HAVE_JOYSTICK
+
 /* using HAVE_DRIVE_LETTERS to deal with SD Card paths */
 #define HAVE_DRIVE_LETTERS
 // TODO: change to more appropriate name like SD_CARD_PATHS
