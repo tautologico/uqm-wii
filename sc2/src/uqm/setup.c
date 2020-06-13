@@ -218,9 +218,10 @@ static BOOLEAN InitKernel(void)
 	if (MicroFont == NULL)
 		return FALSE;
 
-	MenuSounds = CaptureSound(LoadSound(MENU_SOUNDS));
-	if (MenuSounds == 0)
-		return FALSE;
+	// TODO (SOUND) restore after implementing audio
+	//MenuSounds = CaptureSound(LoadSound(MENU_SOUNDS));
+	//if (MenuSounds == 0)
+	//	return FALSE;
 
 	InitStatusOffsets();
 	InitSpace();
@@ -233,7 +234,7 @@ InitGameKernel(void)
 {
 	if (ActivityFrame == 0)
 	{
-		//InitKernel();
+        InitKernel();
 		InitContexts();
 	}
 	return TRUE;

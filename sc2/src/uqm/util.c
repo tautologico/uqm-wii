@@ -229,7 +229,7 @@ WaitForAnyButtonUntil (BOOLEAN newButton, TimeCount timeOut,
 			&& !(GLOBAL (CurrentActivity) & CHECK_ABORT)
 			&& !QuitPosted)
 	{
-		//SleepThread(ONE_SECOND / 40);
+		SleepThread(ONE_SECOND / 40);
 		TFB_ProcessEvents();
 		buttonPressed = AnyButtonPress (TRUE);
 	} 
