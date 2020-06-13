@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <time.h>
 
 // 
 // A simple server that displays messages sent to it, meant
@@ -52,7 +53,11 @@ int main(int argc, char *argv[]) {
 
 	// socket address used to store client address
 	struct sockaddr_in client_address;
-	int client_address_len = 0;
+	int client_address_len = sizeof(client_address);
+
+	// log file
+	char log_file_name[256];
+	FILE *log;
 
 	// main server loop
 	for (;;) {
@@ -64,22 +69,35 @@ int main(int argc, char *argv[]) {
 			return 1;
 		}
 
+		sprintf(log_file_name, "dbg%ld.log", time(NULL));
+		log = fopen(log_file_name, "w");
+		if (log == NULL) {
+		    fprintf(stderr, "could not open file %s\n", log_file_name);
+		    return -1;
+	    }
+
 		int n = 0;
 		int len = 0, maxlen = 1200;
 		char buffer[maxlen];
 
 		printf("=== Client connected with ip address: %s\n", inet_ntoa(client_address.sin_addr));
+		fprintf(log, "=== Client connected with ip address: %s\n", inet_ntoa(client_address.sin_addr));
 
 		// keep running as long as the client keeps the connection open
 		while ((n = recv(sock, buffer, maxlen, 0)) > 0) {
 			buffer[n] = '\0';
 
-			printf("=> %s\n", buffer);
+			printf("=> %s", buffer);
+			fprintf(log, "%s", buffer);
 		}
 
 		close(sock);
+		fclose(log);
+
+		printf("### Connection closed, return to listening...\n");
 	}
 
+	fclose(log);
 	close(listen_sock);
 	return 0;
 }

@@ -39,25 +39,25 @@ int main() {
 
 	// data that will be sent to the server
 	const char* data_to_send[] = 
-       { "Lorem ipsum dolor sit amet consectueris amaunensis foederis",
-         "ipsos literis quo vadis latensis est voegel vanitatis",
-         "al khwarizmi al jabr al alamiah al dente amaterasu humma kavullah",
-         "Be yourself; everyone else is already taken.",
-         "No man has a good enough memory to be a successful liar.",
-         "It was the best of times, it was the worst of times, it was the age of wisdom,",
-         "it was the age of foolishness, it was the epoch of belief, it was the epoch of", 
-         "incredulity, it was the season of Light, it was the season of Darkness, it was",
-         "the spring of hope, it was the winter of despair, we had everything before us,", 
-         "we had nothing before us, we were all going direct to heaven, we were all going", 
-         "direct the other way - in short, the period was so far like the present period,", 
-         "that some of its noisiest authorities insisted on its being received, for good", 
-         "or for evil, in the superlative degree of comparison only." };
+       { "Lorem ipsum dolor sit amet consectueris amaunensis foederis\n",
+         "ipsos literis quo vadis latensis est voegel vanitatis\n",
+         "al khwarizmi al jabr al alamiah al dente amaterasu humma kavullah\n",
+         "Be yourself; everyone else is already taken.\n",
+         "No man has a good enough memory to be a successful liar.\n",
+         "It was the best of times, it was the worst of times, it was the age of wisdom,\n",
+         "it was the age of foolishness, it was the epoch of belief, it was the epoch of\n", 
+         "incredulity, it was the season of Light, it was the season of Darkness, it was\n",
+         "the spring of hope, it was the winter of despair, we had everything before us,\n", 
+         "we had nothing before us, we were all going direct to heaven, we were all going\n", 
+         "direct the other way - in short, the period was so far like the present period,\n", 
+         "that some of its noisiest authorities insisted on its being received, for good\n", 
+         "or for evil, in the superlative degree of comparison only.\n" };
 
     printf("Connected, sending data...\n");
 
     // send all the messages
     for (int i = 0; i < 13; i++) {
-        printf("%d - %s\n", i, data_to_send[i]);
+        printf("%d - %s", i, data_to_send[i]);
 	    send(sock, data_to_send[i], strlen(data_to_send[i]), 0);
         sleep(5);
     }
