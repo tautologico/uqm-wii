@@ -476,6 +476,8 @@ main (int argc, char *argv[])
 	UnInitThreadSystem();
 	mem_uninit();
 
+	log_add(log_User, "*** END, all systems terminated");
+
 	HFree(options.addons);
 	fclose(logFile);
 	

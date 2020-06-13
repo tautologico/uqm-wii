@@ -14,6 +14,10 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+#include <network.h>      // Wii network functions from libogc
+#undef TRUE
+#undef FALSE
+
 #include "uqmlog.h"
 #include "loginternal.h"
 #include "msgbox.h"
@@ -24,6 +28,7 @@
 #include <signal.h>
 #include <errno.h>
 #include "libs/threadlib.h"
+
 
 #ifndef MAX_LOG_ENTRY_SIZE
 #	define MAX_LOG_ENTRY_SIZE 1024
@@ -55,6 +60,10 @@ FILE *streamOut;
 static void exitCallback (void);
 static void displayLog (bool isError);
 
+static s32 socket; 
+static const char * server_address = "192.168.1.110";
+static int port_number = 8877;
+
 
 static void removeExcess(int room)
 {
@@ -67,8 +76,7 @@ static void removeExcess(int room)
 	qtail %= MAX_LOG_ENTRIES;
 }
 
-static int
-acquireSlot (void)
+static int acquireSlot(void)
 {
 	int slot;
 
@@ -81,8 +89,7 @@ acquireSlot (void)
 }
 
 // queues the non-threaded message when present
-static void
-queueNonThreaded (void)
+static void queueNonThreaded(void)
 {
 	int slot;
 
@@ -99,8 +106,49 @@ queueNonThreaded (void)
 	memcpy (queue[slot], msgNoThread, sizeof (msgNoThread));
 }
 
-void
-log_init (int max_lines)
+void init_network(void)
+{
+	s32 result = -1;
+	int tries;
+
+	for (tries = 0; tries < 10 && result < 0; ++tries) {
+		net_deinit();
+		result = net_init();
+	}
+
+	if (result < 0) {
+		net_deinit();
+		fprintf(stderr, "Could not initialize network, exiting.");
+		exit(EXIT_FAILURE);
+	}
+
+	struct sockaddr_in addr;
+	memset(&addr, 0, sizeof(addr));
+	if (inet_aton(server_address, &(addr.sin_addr)) == 0) {
+		fprintf(stderr, "Error transforming server address");
+		exit(EXIT_FAILURE);
+	}
+	addr.sin_family = AF_INET;
+	addr.sin_port = htons(port_number);
+
+	socket = net_socket(AF_INET, SOCK_STREAM, IPPROTO_IP);
+
+	if (socket < 0) {
+		fprintf(stderr, "Error creating socket");
+		exit(EXIT_FAILURE);
+	}
+
+	if (net_connect(socket, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
+		fprintf(stderr, "Error connecting to server");
+		exit(EXIT_FAILURE);
+	}
+
+	char msg[512];
+	sprintf(msg, "Connected after %d tries\n", tries);
+	net_send(socket, msg, strlen(msg), 0);
+}
+
+void log_init(int max_lines)
 {
 	int i;
 
@@ -114,6 +162,8 @@ log_init (int max_lines)
 	msgBuf[sizeof (msgBuf) - 1] = '\0';
 	msgNoThread[sizeof (msgNoThread) - 1] = '\0';
 
+	init_network();
+
 	// install exit handlers
 	atexit (exitCallback);
 }
@@ -122,6 +172,7 @@ int
 log_exit (int code)
 {
 	showBox = false;
+	net_close(socket);
 
 	return code;
 }
@@ -147,11 +198,15 @@ log_addV (log_Level level, const char *fmt, va_list list)
 {
 	log_Entry full_msg;
 	vsnprintf (full_msg, sizeof (full_msg) - 1, fmt, list);
+	int len = strlen(full_msg);
+	full_msg[len] = '\n';
+	full_msg[len+1] = '\0';
 	full_msg[sizeof (full_msg) - 1] = '\0';
 	
 	if ((int)level <= maxStreamLevel)
 	{
-		fprintf (streamOut, "%s\n", full_msg);
+		fprintf (streamOut, "%s", full_msg);
+		net_send(socket, full_msg, len+1, 0);
 	}
 
 	/*
