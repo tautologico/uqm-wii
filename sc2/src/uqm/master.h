@@ -54,8 +54,8 @@ LockMasterShip (const QUEUE *pq, HMASTERSHIP h)
 #define UnlockMasterShip(pq, h) UnlockLink (pq, h)
 #define FreeMasterShip(pq, h) FreeLink (pq, h)
 
-extern void LoadMasterShipList (void (* YieldProcessing)(void));
-extern void FreeMasterShipList (void);
+extern void LoadMasterShipList(void);
+extern void FreeMasterShipList(void);
 extern HMASTERSHIP FindMasterShip (SPECIES_ID ship_ref);
 extern int FindMasterShipIndex (SPECIES_ID ship_ref);
 COUNT GetShipCostFromIndex (unsigned Index);

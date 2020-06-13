@@ -25,6 +25,7 @@
 #include "libs/sound/trackplayer.h"
 #include "libs/mathlib.h"
 #include "libs/log.h"
+#include "libs/graphics/gfx_common.h"
 
 
 void
@@ -228,7 +229,8 @@ WaitForAnyButtonUntil (BOOLEAN newButton, TimeCount timeOut,
 			&& !(GLOBAL (CurrentActivity) & CHECK_ABORT)
 			&& !QuitPosted)
 	{
-		SleepThread (ONE_SECOND / 40);
+		//SleepThread(ONE_SECOND / 40);
+		TFB_ProcessEvents();
 		buttonPressed = AnyButtonPress (TRUE);
 	} 
 

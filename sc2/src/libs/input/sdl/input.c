@@ -346,18 +346,17 @@ is_numpad_char_event (const SDL_Event *Event)
 			Event->key.keysym.sym <= SDLK_KP_PLUS;
 }
 
-void
-ProcessInputEvent (const SDL_Event *Event)
+void ProcessInputEvent(const SDL_Event *Event)
 {
 	if (!InputInitialized)
 		return;
 	
-	ProcessMouseEvent (Event);
+	ProcessMouseEvent(Event);
 
 	// In character mode with NumLock on, numpad chars bypass VControl
 	// so that menu arrow events are not produced
 	if (!is_numpad_char_event (Event))
-		VControl_HandleEvent (Event);
+		VControl_HandleEvent(Event);
 
 	if (Event->type == SDL_KEYDOWN || Event->type == SDL_KEYUP)
 	{	// process character input event, if any

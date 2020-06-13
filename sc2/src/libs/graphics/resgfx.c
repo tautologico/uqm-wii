@@ -40,14 +40,13 @@ InstallGraphicResTypes (void)
 }
 
 /* Needs to be void * because it could be either a DRAWABLE or a FONT. */
-void *
-LoadGraphicInstance (RESOURCE res)
+void * LoadGraphicInstance(RESOURCE res)
 {
 	void *hData;
 
-	hData = res_GetResource (res);
+	hData = res_GetResource(res);
 	if (hData)
-		res_DetachResource (res);
+		res_DetachResource(res);
 
 	return (hData);
 }

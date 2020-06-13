@@ -819,19 +819,6 @@ MIKMODAPI BOOL MikMod_InitThreads(void)
 		firstcall=0;
 #ifdef HAVE_PTHREAD
 		result=1;
-#elif defined(__OS2__)||defined(__EMX__)
-		if(DosCreateMutexSem((PSZ)NULL,&_mm_mutex_lists,0,0) ||
-		   DosCreateMutexSem((PSZ)NULL,&_mm_mutex_vars,0,0)) {
-			_mm_mutex_lists=_mm_mutex_vars=(HMTX)NULL;
-			result=0;
-		} else
-			result=1;
-#elif defined(WIN32)
-		if((!(_mm_mutex_lists=CreateMutex(NULL,FALSE,"libmikmod(lists)")))||
-		   (!(_mm_mutex_vars=CreateMutex(NULL,FALSE,"libmikmod(vars)"))))
-			result=0;
-		else
-			result=1;
 #endif
 	}
 	return result;

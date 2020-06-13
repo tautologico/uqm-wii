@@ -78,7 +78,6 @@ void SplashScreen(void (* DoProcessing)(DWORD TimeOut))
 	DWORD TimeOut;
 
 	// remove fade for now
-	// SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 120));
 	SetContext(ScreenContext);
 	s.origin.x = s.origin.y = 0;
 	s.frame = CaptureDrawable(LoadGraphic(TITLE_ANIM));

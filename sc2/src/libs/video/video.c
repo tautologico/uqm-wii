@@ -168,7 +168,7 @@ _init_video_file (const char *pStr)
 	vid->length = dec->length;
 	vid->w = vid->decoder->w;
 	vid->h = vid->decoder->h;
-	vid->guard = CreateMutex ("video guard", SYNC_CLASS_VIDEO);
+	//vid->guard = CreateMutex ("video guard", SYNC_CLASS_VIDEO);
 
 	return (VIDEO_REF) vid;
 }
@@ -183,7 +183,7 @@ DestroyVideo (VIDEO_REF vid)
 	TFB_StopVideo (vid);
 
 	VideoDecoder_Free (vid->decoder);
-	DestroyMutex (vid->guard);
+	//DestroyMutex (vid->guard);
 	HFree (vid);
 	
 	return TRUE;

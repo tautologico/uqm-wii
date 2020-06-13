@@ -219,7 +219,6 @@ static void saveError (const char *fmt, ...)
 static int parseOptions (int argc, char *argv[],
 		struct options_struct *options);
 static void getUserConfigOptions (struct options_struct *options);
-static void usage (FILE *out, const struct options_struct *defaultOptions);
 static int parseIntOption (const char *str, int *result,
 		const char *optName);
 static int parseFloatOption (const char *str, float *f,
@@ -305,6 +304,8 @@ main (int argc, char *argv[])
 	}
 	log_setOutput(logFile);
 
+	log_add(log_User, "Initial time counter: %d", GetTimeCounter());
+
 	// redirect error output to an error log
 	freopen("error.log", "w", stderr);
 
@@ -331,7 +332,6 @@ main (int argc, char *argv[])
 	TFB_PreInit ();
 	mem_init ();   // currently a noop
 	InitThreadSystem ();
-	log_initThreads ();
 	initIO ();
 	prepareConfigDir (options.configDir);
 
@@ -440,6 +440,7 @@ main (int argc, char *argv[])
 			(volatile int *)ImmediateInputState.key, NUM_TEMPLATES, NUM_KEYS);
 	TFB_InitInput(TFB_INPUTDRIVER_SDL, 0);
 
+	log_add(log_User, "Time after init, before main loop: %d", GetTimeCounter());
 	int result = Starcon2MainLoop();
 
 	/* Currently, we use atexit() callbacks everywhere, so we
@@ -1138,6 +1139,7 @@ parseFloatOption (const char *str, float *f, const char *optName)
 	return 0;
 }
 
+#if 0
 static void
 usage (FILE *out, const struct options_struct *defaults)
 {
@@ -1213,6 +1215,7 @@ usage (FILE *out, const struct options_struct *defaults)
 			choiceOptString (&defaults->smoothScroll));
 	log_setOutput (old);
 }
+#endif
 
 static int
 InvalidArgument (const char *supplied, const char *opt_name)

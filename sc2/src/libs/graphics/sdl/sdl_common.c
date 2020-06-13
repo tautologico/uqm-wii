@@ -193,15 +193,14 @@ TFB_UninitGraphics (void)
 	UnInit_Screen (&format_conv_surf);
 }
 
-void
-TFB_ProcessEvents ()
+void TFB_ProcessEvents()
 {
 	SDL_Event Event;
 
-	while (SDL_PollEvent (&Event) > 0)
+	while (SDL_PollEvent(&Event) > 0)
 	{
 		/* Run through the InputEvent filter. */
-		ProcessInputEvent (&Event);
+		ProcessInputEvent(&Event);
 		/* Handle graphics and exposure events. */
 		switch (Event.type) {
 			case SDL_ACTIVEEVENT:    /* Lose/gain visibility or focus */

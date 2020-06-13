@@ -93,7 +93,7 @@ on_battle_frame (void)
 
 static void BackgroundInitKernel(DWORD TimeOut)
 {
-	LoadMasterShipList(TaskSwitch);
+	LoadMasterShipList();
 	//TaskSwitch();
 	InitGameKernel();
 
@@ -161,6 +161,7 @@ int Starcon2MainLoop(void)
 	GLOBAL (CurrentActivity) = 0;
 	luaUqm_initState ();
 
+	log_add(log_User, "Time before splash: %d", GetTimeCounter());
 	// show splash and init the kernel in the meantime
 	SplashScreen(BackgroundInitKernel);
 

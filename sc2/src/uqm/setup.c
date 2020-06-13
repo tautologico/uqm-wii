@@ -87,17 +87,16 @@ UninitPlayerInput (void)
 #endif /* DEMO_MODE */
 }
 
-BOOLEAN
-LoadKernel (int argc, char *argv[])
+BOOLEAN LoadKernel(int argc, char *argv[])
 {
 	InitSound(argc, argv);    // no-op
-	InitVideoPlayer (TRUE);
+	InitVideoPlayer(TRUE);
 
-	ScreenContext = CreateContext ("ScreenContext");
+	ScreenContext = CreateContext("ScreenContext");
 	if (ScreenContext == NULL)
 		return FALSE;
 
-	Screen = CaptureDrawable (CreateDisplay (WANT_MASK | WANT_PIXMAP,
+	Screen = CaptureDrawable(CreateDisplay (WANT_MASK | WANT_PIXMAP,
 				&screen_width, &screen_height));
 	if (Screen == NULL)
 		return FALSE;
@@ -158,8 +157,7 @@ LoadKernel (int argc, char *argv[])
 	return TRUE;
 }
 
-BOOLEAN
-InitContexts (void)
+BOOLEAN InitContexts(void)
 {
 	RECT r;
 	
@@ -189,8 +187,7 @@ InitContexts (void)
 	return TRUE;
 }
 
-static BOOLEAN
-InitKernel (void)
+static BOOLEAN InitKernel(void)
 {
 	COUNT counter;
 
@@ -205,15 +202,15 @@ InitKernel (void)
 	if (TinyFont == NULL)
 		return FALSE;
 
-	ActivityFrame = CaptureDrawable(LoadGraphic (ACTIVITY_ANIM));
+	ActivityFrame = CaptureDrawable(LoadGraphic(ACTIVITY_ANIM));
 	if (ActivityFrame == NULL)
 		return FALSE;
 
-	StatusFrame = CaptureDrawable(LoadGraphic (STATUS_MASK_PMAP_ANIM));
+	StatusFrame = CaptureDrawable(LoadGraphic(STATUS_MASK_PMAP_ANIM));
 	if (StatusFrame == NULL)
 		return FALSE;
 
-	GameStrings = CaptureStringTable(LoadStringTable (STARCON_GAME_STRINGS));
+	GameStrings = CaptureStringTable(LoadStringTable(STARCON_GAME_STRINGS));
 	if (GameStrings == 0)
 		return FALSE;
 
@@ -236,7 +233,7 @@ InitGameKernel(void)
 {
 	if (ActivityFrame == 0)
 	{
-		InitKernel();
+		//InitKernel();
 		InitContexts();
 	}
 	return TRUE;

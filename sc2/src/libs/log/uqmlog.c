@@ -52,32 +52,11 @@ static bool errorBox = true;
 
 FILE *streamOut;
 
-static volatile int qlock = 0;
-static Mutex qmutex;
-
 static void exitCallback (void);
 static void displayLog (bool isError);
 
-static void
-lockQueue (void)
-{
-	if (!qlock)
-		return;
 
-	LockMutex (qmutex);
-}
-
-static void
-unlockQueue (void)
-{
-	if (!qlock)
-		return;
-
-	UnlockMutex (qmutex);
-}
-
-static void
-removeExcess (int room)
+static void removeExcess(int room)
 {
 	room = maxDisp - room;
 	if (room < 0)
@@ -93,15 +72,11 @@ acquireSlot (void)
 {
 	int slot;
 
-	lockQueue ();
-	
 	removeExcess (1);
 	slot = qhead;
 	qhead = (qhead + 1) % MAX_LOG_ENTRIES;
 	++qtotal;
 	
-	unlockQueue ();
-
 	return slot;
 }
 
@@ -143,24 +118,10 @@ log_init (int max_lines)
 	atexit (exitCallback);
 }
 
-void
-log_initThreads (void)
-{
-	qmutex = CreateMutex ("Logging Lock", SYNC_CLASS_RESOURCE);
-	qlock = 1;
-}
-
 int
 log_exit (int code)
 {
 	showBox = false;
-
-	if (qlock)
-	{
-		qlock = 0;
-		DestroyMutex (qmutex);
-		qmutex = 0;
-	}
 
 	return code;
 }
@@ -267,9 +228,7 @@ log_captureLines (int num)
 	maxDisp = num;
 
 	// remove any extra lines already on queue
-	lockQueue ();
 	removeExcess (0);
-	unlockQueue ();
 }
 
 static void

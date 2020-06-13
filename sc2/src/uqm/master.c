@@ -26,12 +26,12 @@
 
 QUEUE master_q;
 
-void LoadMasterShipList(void (* YieldProcessing)(void))
+void LoadMasterShipList(void)
 {
 	COUNT num_entries;
 	SPECIES_ID s_id = ARILOU_ID;
 	num_entries = LAST_MELEE_ID - ARILOU_ID + 1;
-	InitQueue (&master_q, num_entries, sizeof (MASTER_SHIP_INFO));
+	InitQueue(&master_q, num_entries, sizeof (MASTER_SHIP_INFO));
 	while (num_entries--)
 	{
 		HMASTERSHIP hBuiltShip;
@@ -40,14 +40,9 @@ void LoadMasterShipList(void (* YieldProcessing)(void))
 		MASTER_SHIP_INFO *BuiltPtr;
 		RACE_DESC *RDPtr;
 
-		hBuiltShip = AllocLink (&master_q);
+		hBuiltShip = AllocLink(&master_q);
 		if (!hBuiltShip)
 			continue;
-
-		// Allow other things to run
-		//  supposedly, loading ship packages and data takes some time
-		//if (YieldProcessing)
-		//	YieldProcessing ();
 
 		BuiltPtr = LockMasterShip(&master_q, hBuiltShip);
 		BuiltPtr->SpeciesID = s_id++;
@@ -62,7 +57,7 @@ void LoadMasterShipList(void (* YieldProcessing)(void))
 		// XXX: SHIP_INFO implicitly referenced here
 		BuiltPtr->ShipInfo = RDPtr->ship_info;
 		BuiltPtr->Fleet = RDPtr->fleet;
-		free_ship (RDPtr, FALSE, FALSE);
+		free_ship(RDPtr, FALSE, FALSE);
 
 		builtName = GetStringAddress(SetAbsStringTableIndex (
 				BuiltPtr->ShipInfo.race_strings, 2));
@@ -70,9 +65,9 @@ void LoadMasterShipList(void (* YieldProcessing)(void))
 
 		// Insert the ship in the master queue in the right location
 		// to keep the list sorted on the name of the race.
-		for (hStarShip = GetHeadLink (&master_q);
-				hStarShip; hStarShip = hNextShip)
-		{
+		for (hStarShip = GetHeadLink(&master_q);
+			 hStarShip != NULL; 
+			 hStarShip = hNextShip) {
 			char *curName;
 			MASTER_SHIP_INFO *MasterPtr;
 

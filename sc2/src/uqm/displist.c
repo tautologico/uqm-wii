@@ -30,8 +30,7 @@
  * and poses a hard limit on the number of elements in the list.
  */
 
-BOOLEAN
-InitQueue (QUEUE *pq, COUNT num_elements, OBJ_SIZE size)
+BOOLEAN InitQueue(QUEUE *pq, COUNT num_elements, OBJ_SIZE size)
 {
 	SetHeadLink (pq, NULL_HANDLE);
 	SetTailLink (pq, NULL_HANDLE);
@@ -46,9 +45,9 @@ InitQueue (QUEUE *pq, COUNT num_elements, OBJ_SIZE size)
 #endif
 	if (AllocQueueTab (pq, num_elements) != NULL)
 	{
-		do
+		do {
 			FreeLink (pq, GetLinkAddr (pq, num_elements));
-		while (--num_elements);
+		} while (--num_elements);
 
 		return (TRUE);
 	}
@@ -57,8 +56,7 @@ InitQueue (QUEUE *pq, COUNT num_elements, OBJ_SIZE size)
 #endif /* QUEUE_TABLE */
 }
 
-BOOLEAN
-UninitQueue (QUEUE *pq)
+BOOLEAN UninitQueue(QUEUE *pq)
 {
 #ifdef QUEUE_TABLE
 	SetHeadLink (pq, NULL_HANDLE);
@@ -82,8 +80,7 @@ UninitQueue (QUEUE *pq)
 }
 
 // Empty the queue. The elements linked to in the queue are unchanged.
-void
-ReinitQueue (QUEUE *pq)
+void ReinitQueue(QUEUE *pq)
 {
 	SetHeadLink (pq, NULL_HANDLE);
 	SetTailLink (pq, NULL_HANDLE);

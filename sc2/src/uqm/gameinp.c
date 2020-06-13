@@ -114,7 +114,7 @@ ResetKeyRepeat (void)
 
 static void
 _check_for_pulse (int *current, int *cached, int *old, DWORD *accel,
-		DWORD *newtime, DWORD *oldtime)
+                  DWORD *newtime, DWORD *oldtime)
 {
 	if (*cached && *old)
 	{
@@ -144,8 +144,7 @@ _check_for_pulse (int *current, int *cached, int *old, DWORD *accel,
  * this will affect the gestalt repeat rate.  This isn't a problem
  * *yet*, but it will be once the user gets to define control
  * templates on his own --McM */
-static void
-_check_gestalt (DWORD NewTime)
+static void _check_gestalt(DWORD NewTime)
 {
 	BOOLEAN CurrentGestalt;
 	int i, j;
@@ -221,8 +220,7 @@ _check_gestalt (DWORD NewTime)
 	}
 }
 
-void
-UpdateInputState (void)
+void UpdateInputState(void)
 {
 	DWORD NewTime;
 	/* First, if the game is, in fact, paused, we stall until
@@ -232,9 +230,6 @@ UpdateInputState (void)
 
 	// Automatically pause and enter low-activity state while inactive,
 	// for example, window minimized.
-	if (!GameActive)
-		SleepGame ();
-
 	if (GamePaused)
 		PauseGame ();
 
@@ -244,8 +239,8 @@ UpdateInputState (void)
 	CurrentInputState = ImmediateInputState;
 	OldInputState = CachedInputState;
 	CachedInputState = ImmediateInputState;
-	BeginInputFrame ();
-	NewTime = GetTimeCounter ();
+	BeginInputFrame();
+	NewTime = GetTimeCounter();
 	if (_gestalt_keys)
 	{
 		_check_gestalt (NewTime);
@@ -457,7 +452,7 @@ AnyButtonPress (BOOLEAN CheckSpecial)
 {
 	int i, j;
 	(void) CheckSpecial;   // Ignored
-	UpdateInputState ();
+	UpdateInputState();
 	for (i = 0; i < NUM_TEMPLATES; i++)
 	{
 		for (j = 0; j < NUM_KEYS; j++)

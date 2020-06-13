@@ -122,7 +122,7 @@ InitTaskSystem (void)
 	int i;
 	for (i = 0; i < TASK_MAX; ++i)
 	{
-		task_array[i].state_mutex = CreateMutex ("task manager lock", SYNC_CLASS_TOPLEVEL | SYNC_CLASS_RESOURCE);
+		//task_array[i].state_mutex = CreateMutex ("task manager lock", SYNC_CLASS_TOPLEVEL | SYNC_CLASS_RESOURCE);
 	}
 }
 
@@ -132,7 +132,7 @@ CleanupTaskSystem (void)
 	int i;
 	for (i = 0; i < TASK_MAX; ++i)
 	{
-		DestroyMutex (task_array[i].state_mutex);
+		//DestroyMutex (task_array[i].state_mutex);
 		task_array[i].state_mutex = 0;
 	}
 }

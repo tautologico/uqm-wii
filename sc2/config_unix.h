@@ -62,7 +62,7 @@
 #define OVCODEC_TREMOR
 
 /* signal that we have joystick */
-#define HAVE_JOYSTICK
+//#define HAVE_JOYSTICK
 
 /* using HAVE_DRIVE_LETTERS to deal with SD Card paths */
 #define HAVE_DRIVE_LETTERS
