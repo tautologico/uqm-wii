@@ -197,19 +197,18 @@ TFB_DrawScreen_DeleteData (void *data)
 	}
 }
 
-void
-TFB_DrawScreen_WaitForSignal (void)
+void TFB_DrawScreen_WaitForSignal(void)
 {
 	TFB_DrawCommand DrawCommand;
-	Semaphore s;
-	s = GetMyThreadLocal ()->flushSem;
+	//Semaphore s;
+	//s = GetMyThreadLocal ()->flushSem;
 	DrawCommand.Type = TFB_DRAWCOMMANDTYPE_SENDSIGNAL;
-	DrawCommand.data.sendsignal.sem = s;
-	Lock_DCQ (1);
-	TFB_BatchReset ();
-	TFB_EnqueueDrawCommand (&DrawCommand);
+	//DrawCommand.data.sendsignal.sem = s;   // TODO commenting this out probably breaks it
+	Lock_DCQ(1);
+	TFB_BatchReset();
+	TFB_EnqueueDrawCommand(&DrawCommand);
 	Unlock_DCQ();
-	SetSemaphore (s);	
+	//SetSemaphore (s);	
 }
 
 void

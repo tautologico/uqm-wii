@@ -98,10 +98,9 @@ UnbatchGraphics (void)
 /* Sleeps this thread until all Draw Commands queued by that thread have
    been processed. */
 
-void
-FlushGraphics (void)
+void FlushGraphics(void)
 {
-	TFB_DrawScreen_WaitForSignal ();
+	TFB_DrawScreen_WaitForSignal();
 }
 
 static void

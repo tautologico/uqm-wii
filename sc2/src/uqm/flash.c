@@ -38,8 +38,6 @@
 
 #include "libs/log.h"
 #include "libs/memlib.h"
-#include "libs/threadlib.h"
-
 
 static FlashContext *Flash_create (CONTEXT gfxContext);
 static void Flash_fixState (FlashContext *context);
@@ -189,8 +187,7 @@ Flash_start (FlashContext *context)
 {
 	if (context->started)
 	{
-		log_add (log_Warning, "Flash_start() called on already started "
-				"FlashContext.\n");
+		log_add (log_Warning, "Flash_start() called on already started FlashContext.\n");
 		return;
 	}
 	
@@ -202,8 +199,8 @@ Flash_start (FlashContext *context)
 	Flash_grabOriginal (context);
 	context->lastFrameIndex = 0;
 
-	Flash_fixState (context);
-	Flash_drawCurrentFrame (context);
+	Flash_fixState(context);
+	Flash_drawCurrentFrame(context);
 }
 
 void
@@ -343,11 +340,11 @@ Flash_setSpeed (FlashContext *context, TimeCount fadeInTime,
 // These numbers are relative to the brighness of each original image.
 void
 Flash_setMergeFactors(FlashContext *context, int startNumer, int endNumer,
-		int denom) {
+		              int denom) {
 	if (context->started)
 	{
-		Flash_drawFrame (context, context->original);
-		Flash_clearCache (context);
+		Flash_drawFrame(context, context->original);
+		Flash_clearCache(context);
 	}
 
 	context->startNumer = startNumer;
@@ -356,8 +353,8 @@ Flash_setMergeFactors(FlashContext *context, int startNumer, int endNumer,
 
 	if (context->started)
 	{
-		Flash_grabOriginal (context);
-		Flash_drawCurrentFrame (context);
+		Flash_grabOriginal(context);
+		Flash_drawCurrentFrame(context);
 	}
 }
 
@@ -546,7 +543,9 @@ Flash_grabOriginal (FlashContext *context)
 	oldGfxContext = SetContext (context->gfxContext);
 	context->original = CaptureDrawable (CopyContextRect (&context->rect));
 	SetContext (oldGfxContext);
-	FlushGraphics ();
+	TFB_FlushGraphics();
+	// TODO: check if this FlushGraphics is necessary
+	//FlushGraphics();  
 			// CopyContextRect() may have queued the command to read
 			// a rectangle from the screen; a FlushGraphics()
 			// is necessary to ensure that it can actually be used.
@@ -674,8 +673,7 @@ Flash_prepareCacheFrame (FlashContext *context, COUNT index)
 	}
 }
 
-static void
-Flash_drawFrame (FlashContext *context, FRAME frame)
+static void Flash_drawFrame(FlashContext *context, FRAME frame)
 {
 	CONTEXT oldGfxContext;
 	STAMP stamp;
@@ -689,8 +687,7 @@ Flash_drawFrame (FlashContext *context, FRAME frame)
 	SetContext (oldGfxContext);
 }
 
-static void
-Flash_drawCacheFrame (FlashContext *context, COUNT index)
+static void Flash_drawCacheFrame(FlashContext *context, COUNT index)
 {
 	FRAME frame;
 

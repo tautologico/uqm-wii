@@ -148,31 +148,35 @@ int Starcon2MainLoop(void)
 {
 	if (!LoadKernel(0,0))
 	{
-		log_add (log_Fatal, "\n  *** FATAL ERROR: Could not load basic content ***\n\nUQM requires at least the base content pack to run properly.");
-		log_add (log_Fatal, "This file is typically called uqm-%d.%d.0-content.uqm.  UQM was expecting", UQM_MAJOR_VERSION, UQM_MINOR_VERSION);
-		log_add (log_Fatal, "it in the %s/packages directory.", baseContentPath);
-		log_add (log_Fatal, "Either your installation did not install the content pack at all, or it\ninstalled it in a different directory.\n\nFix your installation and rerun UQM.\n\n  *******************\n");
-		log_showBox (true, true);
+		log_add(log_Fatal, "\n  *** FATAL ERROR: Could not load basic content ***\n\nUQM requires at least the base content pack to run properly.");
+		log_add(log_Fatal, "This file is typically called uqm-%d.%d.0-content.uqm.  UQM was expecting", UQM_MAJOR_VERSION, UQM_MINOR_VERSION);
+		log_add(log_Fatal, "it in the %s/packages directory.", baseContentPath);
+		log_add(log_Fatal, "Either your installation did not install the content pack at all, or it\ninstalled it in a different directory.\n\nFix your installation and rerun UQM.\n\n  *******************\n");
+		log_showBox(true, true);
 
 		return EXIT_FAILURE;
 	}
-	log_add (log_Info, "We've loaded the Kernel");
+	log_add(log_Info, "We've loaded the Kernel");
 
-	GLOBAL (CurrentActivity) = 0;
-	luaUqm_initState ();
+	GLOBAL(CurrentActivity) = 0;
+	luaUqm_initState();
 
 	log_add(log_User, "Time before splash: %d", GetTimeCounter());
 	// show splash and init the kernel in the meantime
 	SplashScreen(BackgroundInitKernel);
 
+	log_add(log_User, "Going into the StartGame menu");
 	// MAIN LOOP
+	StartGame();
+
+	log_add(log_User, "Current activity: %d - Last activity: %d", GLOBAL(CurrentActivity), LastActivity);
 	//TFB_FlushGraphics();
 
-	luaUqm_uninitState ();
+	luaUqm_uninitState();
 
-	UninitGameKernel ();
-	FreeMasterShipList ();
-	FreeKernel ();
+	UninitGameKernel();
+	FreeMasterShipList();
+	FreeKernel();
 
 	return EXIT_SUCCESS;
 }

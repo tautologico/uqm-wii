@@ -32,6 +32,7 @@
 #include "libs/inplib.h"
 #include "libs/timelib.h"
 #include "libs/threadlib.h"
+#include "libs/log.h"
 
 
 #define ACCELERATION_INCREMENT (ONE_SECOND / 12)
@@ -70,8 +71,7 @@ volatile BOOLEAN GamePaused;
 
 static InputFrameCallback *inputCallback;
 
-static void
-_clear_menu_state (void)
+static void _clear_menu_state(void)
 {
 	int i, j;
 	for (i = 0; i < NUM_TEMPLATES; i++)
@@ -90,8 +90,7 @@ _clear_menu_state (void)
 	CachedGestalt = FALSE;
 }
 
-void
-ResetKeyRepeat (void)
+void ResetKeyRepeat(void)
 {
 	DWORD initTime = GetTimeCounter ();
 	int i, j;
@@ -231,10 +230,10 @@ void UpdateInputState(void)
 	// Automatically pause and enter low-activity state while inactive,
 	// for example, window minimized.
 	if (GamePaused)
-		PauseGame ();
+		PauseGame();
 
 	if (ExitRequested)
-		ConfirmExit ();
+		ConfirmExit();
 
 	CurrentInputState = ImmediateInputState;
 	OldInputState = CachedInputState;
@@ -243,7 +242,7 @@ void UpdateInputState(void)
 	NewTime = GetTimeCounter();
 	if (_gestalt_keys)
 	{
-		_check_gestalt (NewTime);
+		_check_gestalt(NewTime);
 	}
 	else
 	{
@@ -277,8 +276,7 @@ void UpdateInputState(void)
 #endif
 }
 
-InputFrameCallback *
-SetInputCallback (InputFrameCallback *callback)
+InputFrameCallback* SetInputCallback(InputFrameCallback *callback)
 {
 	InputFrameCallback *old = inputCallback;
 	
@@ -290,8 +288,7 @@ SetInputCallback (InputFrameCallback *callback)
 	return old;
 }
 
-void
-SetMenuRepeatDelay (DWORD min, DWORD max, DWORD step, BOOLEAN gestalt)
+void SetMenuRepeatDelay(DWORD min, DWORD max, DWORD step, BOOLEAN gestalt)
 {
 	_min_accel = min;
 	_max_accel = max;
@@ -301,8 +298,7 @@ SetMenuRepeatDelay (DWORD min, DWORD max, DWORD step, BOOLEAN gestalt)
 	ResetKeyRepeat ();
 }
 
-void
-SetDefaultMenuRepeatDelay (void)
+void SetDefaultMenuRepeatDelay(void)
 {
 	_min_accel = ACCELERATION_INCREMENT;
 	_max_accel = MENU_REPEAT_DELAY;
@@ -312,8 +308,7 @@ SetDefaultMenuRepeatDelay (void)
 	ResetKeyRepeat ();
 }
 
-void
-FlushInput (void)
+void FlushInput(void)
 {
 	TFB_ResetControls ();
 	_clear_menu_state ();
@@ -351,30 +346,29 @@ MenuKeysToSoundFlags (const CONTROLLER_INPUT_STATE *state)
 	return soundFlags;
 }
 
-void
-DoInput (void *pInputState, BOOLEAN resetInput)
+void DoInput(void *pInputState, BOOLEAN resetInput)
 {
+	log_add(log_User, "Entering DoInput");
+
 	if (resetInput)
-		FlushInput ();
+		FlushInput();
 
 	do
 	{
 		MENU_SOUND_FLAGS soundFlags;
-		Async_process ();
-		TaskSwitch ();
+		log_add(log_User, "Flushing graphics and processing events");
+		TFB_FlushGraphics();
+		TFB_ProcessEvents();
+		log_add(log_User, "Processing alarms and callbacks");
+		Async_process();
+		//TaskSwitch();       // this could cause event processing in the main thread
 
-		UpdateInputState ();
+		log_add(log_User, "Updating the input state");
+		UpdateInputState();
 
-#if DEMO_MODE || CREATE_JOURNAL
-		if (ArrowInput != DemoInput)
-#endif
-		{
-#if CREATE_JOURNAL
-			JournalInput (InputState);
-#endif /* CREATE_JOURNAL */
-		}
-
-		soundFlags = MenuKeysToSoundFlags (&PulsedInputState);
+		// TODO reenable when sound is working
+#if 0
+		soundFlags = MenuKeysToSoundFlags(&PulsedInputState);
 			
 		if (MenuSounds && (soundFlags & (sound_0 | sound_1)))
 		{
@@ -386,25 +380,26 @@ DoInput (void *pInputState, BOOLEAN resetInput)
 
 			PlaySoundEffect (S, 0, NotPositional (), NULL, 0);
 		}
+#endif
 
 		if (inputCallback)
-			inputCallback ();
+			inputCallback();
 
-	} while (((INPUT_STATE_DESC*)pInputState)->InputFunc (pInputState));
+		log_add(log_User, "End of input loop, will call the InputFunc");
+		
+	} while (((INPUT_STATE_DESC*)pInputState)->InputFunc(pInputState));
 
 	if (resetInput)
-		FlushInput ();
+		FlushInput();
 }
 
-void
-SetMenuSounds (MENU_SOUND_FLAGS s0, MENU_SOUND_FLAGS s1)
+void SetMenuSounds(MENU_SOUND_FLAGS s0, MENU_SOUND_FLAGS s1)
 {
 	sound_0 = s0;
 	sound_1 = s1;
 }
 
-void
-GetMenuSounds (MENU_SOUND_FLAGS *s0, MENU_SOUND_FLAGS *s1)
+void GetMenuSounds(MENU_SOUND_FLAGS *s0, MENU_SOUND_FLAGS *s1)
 {
 	*s0 = sound_0;
 	*s1 = sound_1;
